@@ -22,7 +22,7 @@ func isInList(str string, list []string) bool {
 	return false
 }
 
-func FindLink(startURL, transitURL, targetTitle string, depth int, hrefs []string, path []string, ch chan bool) {
+func FindLink(startURL, targetTitle string, depth int, hrefs []string, path []string, ch chan bool) {
 	defer wg.Done()
 
 	if depth < 0 {
@@ -71,9 +71,11 @@ func FindLink(startURL, transitURL, targetTitle string, depth int, hrefs []strin
 				}
 				if href != "/wiki/Main_Page" && !found && !isInList(href, hrefs) {
 					// Continue searching recursively with reduced depth
+					mu.Lock()
 					hrefs = append(hrefs, href)
+					mu.Unlock()
 					wg.Add(1)
-					go FindLink(startURL, "https://en.wikipedia.org"+href, targetTitle, depth-1, hrefs, append(path, title), ch)
+					go FindLink("https://en.wikipedia.org"+href, targetTitle, depth-1, hrefs, append(path, title), ch)
 				}
 			}
 		})
@@ -87,8 +89,8 @@ func FindLink(startURL, transitURL, targetTitle string, depth int, hrefs []strin
 }
 
 func main() {
-	startURL := "https://en.wikipedia.org/wiki/Mike_Tyson"
-	targetTitle := "Jackie Chan"
+	startURL := "https://en.wikipedia.org/wiki/Samsung"
+	targetTitle := "Xiaomi"
 	depth := 3
 	var hrefs []string
 	ch := make(chan bool, 1)
@@ -100,12 +102,12 @@ func main() {
 		queue = queue[1:]
 
 		wg.Add(1)
-		go FindLink(currURL, currURL, targetTitle, depth, hrefs, []string{}, ch)
+		fmt.Println("Searching...")
+		go FindLink(currURL, targetTitle, depth, hrefs, []string{}, ch)
 
 		if <-ch {
 			fmt.Println("Target found!")
 			return
-			// break
 		}
 
 		// Add new links to the queue
