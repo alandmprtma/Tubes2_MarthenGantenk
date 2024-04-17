@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -12,6 +13,7 @@ import (
 type Page struct {
 	URL  string
 	Path []string
+	Depth int
 }
 
 func isInList(str string, list []string) bool {
@@ -23,20 +25,19 @@ func isInList(str string, list []string) bool {
 	return false
 }
 
-func FindLink(startURL, targetTitle string, depth int) []string {
-	queue := []Page{{URL: startURL, Path: []string{}}}
-	visited := make(map[string]bool)
-	var result []string
+func FindLink(startURL, targetTitle string, depth int, hrefs []string) {
+	queue := []Page{{URL: startURL, Path: []string{}, Depth: depth}}
 
 	for len(queue) > 0 {
+		
 		currentPage := queue[0]
 		queue = queue[1:]
 
-		// Skip if the page is already visited
-		if visited[currentPage.URL] {
-			continue
+		if (currentPage.Depth == 0) {
+			return
 		}
-
+		// fmt.Println(currentPage.URL)
+		
 		// Request the HTML page
 		res, err := http.Get(currentPage.URL)
 		if err != nil {
@@ -46,46 +47,45 @@ func FindLink(startURL, targetTitle string, depth int) []string {
 		if res.StatusCode != 200 {
 			log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
 		}
-
+		
 		// Load the HTML document
 		doc, err := goquery.NewDocumentFromReader(res.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
-
+		
 		// Find the links inside the page
-		bodyContent := doc.Find("#bodyContent")
-		bodyContent.Find("p").Each(func(i int, p *goquery.Selection) {
+		content := doc.Find("#mw-content-text")
+		content.Find("p").Each(func(i int, p *goquery.Selection) {
 			p.Find("a").Each(func(j int, s *goquery.Selection) {
 				href, exists := s.Attr("href")
+				// fmt.Println(href)
 				if exists && strings.HasPrefix(href, "/wiki/") {
 					title := s.Text()
+					// fmt.Printf("Checking: %s\n", title)
 					newPath := append(currentPage.Path, title)
 					if title == targetTitle {
-						result = newPath
+						result := strings.Join(newPath, " -> ")
+						fmt.Printf("Path: %s\n", result)
 						return
 					}
-					if href != "/wiki/Main_Page" && !isInList(href, visited) {
-						queue = append(queue, Page{URL: "https://en.wikipedia.org" + href, Path: newPath})
+					if href != "/wiki/Main_Page" && !isInList(href, hrefs) {
+						hrefs = append(hrefs, href)
+						queue = append(queue, Page{URL: "https://en.wikipedia.org" + href, Path: newPath, Depth: currentPage.Depth-1})
 					}
 				}
 			})
 		})
-
-		visited[currentPage.URL] = true
 	}
-
-	return result
 }
 
 func main() {
 	startURL := "https://en.wikipedia.org/wiki/Samsung"
 	targetTitle := "Xiaomi"
-	depth := 3
-	path := FindLink(startURL, targetTitle, depth)
-	if len(path) > 0 {
-		fmt.Printf("Path found: %v\n", path)
-	} else {
-		fmt.Println("Path not found")
-	}
+	depth := 2
+	var hrefs []string
+	start := time.Now()
+	FindLink(startURL, targetTitle, depth, hrefs)
+	elapsed := time.Since(start)
+	fmt.Printf("Waktu yang dibutuhkan: %s\n", elapsed)
 }
