@@ -26,59 +26,67 @@ func isInList(str string, list []string) bool {
 	return false
 }
 
-func worker(startURL, targetTitle string, depth int, queue chan Page, wg *sync.WaitGroup) {
-	defer wg.Done()
+func FindLink(startURL, targetTitle string, depth int, hrefs []string) {
+	var mu sync.Mutex
+	queue := []Page{{URL: startURL, Path: []string{}, Depth: depth}}
 
-	for {
-		select {
-		case currentPage := <-queue:
-			if currentPage.Depth == 0 {
-				return
-			}
+	for len(queue) > 0 {
+		
+		currentPage := queue[0]
+		queue = queue[1:]
 
-			// Request the HTML page
-			res, err := http.Get(currentPage.URL)
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer res.Body.Close()
-			if res.StatusCode != 200 {
-				log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
-			}
-
-			// Load the HTML document
-			doc, err := goquery.NewDocumentFromReader(res.Body)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			firstPath := doc.Find("title").Text()
-			firstPathSplit := strings.Split(firstPath, "-")
-			if len(firstPathSplit) > 0 {
-				currentPage.Path = append(currentPage.Path, strings.TrimSpace(firstPathSplit[0]))
-			}
-
-			// Find the links inside the page
-			content := doc.Find("#mw-content-text")
-			content.Find("p").Each(func(i int, p *goquery.Selection) {
-				p.Find("a").Each(func(j int, s *goquery.Selection) {
-					href, exists := s.Attr("href")
-					if exists && strings.HasPrefix(href, "/wiki/") {
-						title := s.Text()
-						if title == targetTitle {
-							result := strings.Join(currentPage.Path, " -> ")
-							fmt.Printf("Path: %s -> %s\n", result, title)
-							return
-						} else if href != "/wiki/Main_Page" && !isInList(href, hrefs) {
-							hrefs = append(hrefs, href)
-							queue <- Page{URL: "https://en.wikipedia.org" + href, Path: currentPage.Path, Depth: currentPage.Depth - 1}
-						}
-					}
-				})
-			})
-		default:
+		if (currentPage.Depth == 0) {
 			return
 		}
+		// fmt.Println(currentPage.URL)
+
+		// Request the HTML page
+		res, err := http.Get(currentPage.URL)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer res.Body.Close()
+		if res.StatusCode != 200 {
+			log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+		}
+		
+		// Load the HTML document
+		doc, err := goquery.NewDocumentFromReader(res.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		firstPath := doc.Find("title").Text()
+		firstPathSplit := strings.Split(firstPath, "-")
+		if len(firstPathSplit) > 0 {
+			currentPage.Path = append(currentPage.Path, strings.TrimSpace(firstPathSplit[0]))
+		} 
+		
+		// Find the links inside the page
+		content := doc.Find("#mw-content-text")
+		content.Find("p").Each(func(i int, p *goquery.Selection) {
+			p.Find("a").Each(func(j int, s *goquery.Selection) {
+				href, exists := s.Attr("href")
+				// fmt.Println(href)
+				if exists && strings.HasPrefix(href, "/wiki/") {
+					title := s.Text()
+					// fmt.Printf("Checking: %s\n", title)
+					// newPath := append(currentPage.Path, title)
+					if title == targetTitle {
+						result := strings.Join(currentPage.Path, " -> ")
+						fmt.Printf("Path: %s -> %s\n", result, title)
+						return
+					} else if href != "/wiki/Main_Page" && !isInList(href, hrefs) {
+						hrefs = append(hrefs, href)
+						go func(href string) {
+							mu.Lock()
+							defer mu.Unlock()
+							queue = append(queue, Page{URL: "https://en.wikipedia.org" + href, Path: currentPage.Path, Depth: currentPage.Depth-1})
+						}(href)					
+					}
+				}
+			})
+		})
 	}
 }
 
@@ -87,21 +95,8 @@ func main() {
 	targetTitle := "Xiaomi"
 	depth := 2
 	var hrefs []string
-
-	queue := make(chan Page)
-	var wg sync.WaitGroup
-
-	for i := 0; i < 5; i++ { // Adjust the number of workers as needed
-		wg.Add(1)
-		go worker(startURL, targetTitle, depth, queue, &wg)
-	}
-
 	start := time.Now()
-	queue <- Page{URL: startURL, Path: []string{}, Depth: depth}
-
-	wg.Wait()
-	close(queue)
-
+	FindLink(startURL, targetTitle, depth, hrefs)
 	elapsed := time.Since(start)
 	fmt.Printf("Waktu yang dibutuhkan: %s\n", elapsed)
 }
