@@ -1,0 +1,107 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/PuerkitoBio/goquery"
+)
+
+type Page struct {
+	URL  string
+	Path []string
+	Depth int
+}
+
+func isInList(str string, list []string) bool {
+	for _, v := range list {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
+
+func worker(startURL, targetTitle string, depth int, queue chan Page, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for {
+		select {
+		case currentPage := <-queue:
+			if currentPage.Depth == 0 {
+				return
+			}
+
+			// Request the HTML page
+			res, err := http.Get(currentPage.URL)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer res.Body.Close()
+			if res.StatusCode != 200 {
+				log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+			}
+
+			// Load the HTML document
+			doc, err := goquery.NewDocumentFromReader(res.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			firstPath := doc.Find("title").Text()
+			firstPathSplit := strings.Split(firstPath, "-")
+			if len(firstPathSplit) > 0 {
+				currentPage.Path = append(currentPage.Path, strings.TrimSpace(firstPathSplit[0]))
+			}
+
+			// Find the links inside the page
+			content := doc.Find("#mw-content-text")
+			content.Find("p").Each(func(i int, p *goquery.Selection) {
+				p.Find("a").Each(func(j int, s *goquery.Selection) {
+					href, exists := s.Attr("href")
+					if exists && strings.HasPrefix(href, "/wiki/") {
+						title := s.Text()
+						if title == targetTitle {
+							result := strings.Join(currentPage.Path, " -> ")
+							fmt.Printf("Path: %s -> %s\n", result, title)
+							return
+						} else if href != "/wiki/Main_Page" && !isInList(href, hrefs) {
+							hrefs = append(hrefs, href)
+							queue <- Page{URL: "https://en.wikipedia.org" + href, Path: currentPage.Path, Depth: currentPage.Depth - 1}
+						}
+					}
+				})
+			})
+		default:
+			return
+		}
+	}
+}
+
+func main() {
+	startURL := "https://en.wikipedia.org/wiki/Samsung"
+	targetTitle := "Xiaomi"
+	depth := 2
+	var hrefs []string
+
+	queue := make(chan Page)
+	var wg sync.WaitGroup
+
+	for i := 0; i < 5; i++ { // Adjust the number of workers as needed
+		wg.Add(1)
+		go worker(startURL, targetTitle, depth, queue, &wg)
+	}
+
+	start := time.Now()
+	queue <- Page{URL: startURL, Path: []string{}, Depth: depth}
+
+	wg.Wait()
+	close(queue)
+
+	elapsed := time.Since(start)
+	fmt.Printf("Waktu yang dibutuhkan: %s\n", elapsed)
+}

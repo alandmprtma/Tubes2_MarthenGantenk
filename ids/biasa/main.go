@@ -76,8 +76,8 @@ func FindLink(startNode, targetNode Node, depth int, visited []Node) {
 }
 
 func main() {
-	startNode := Node{Title: "Mike Tyson", URL: "https://en.wikipedia.org/wiki/Mike_Tyson", Path: []string{"Mike Tyson"}}
-	targetNode := Node{Title: "boxing", URL: "", Path: []string{}}
+	startNode := Node{Title: "Samsung", URL: "https://en.wikipedia.org/wiki/Samsung", Path: []string{"Mike Tyson"}}
+	targetNode := Node{Title: "Xiaomi", URL: "", Path: []string{}}
 	depth := 3
 	var visited []Node
 
