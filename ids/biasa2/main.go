@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -17,26 +19,32 @@ type Node struct {
 }
 
 var httpClient = &http.Client{
-	Timeout: time.Second * 10, // Set timeout
+	Timeout: time.Second * 10,
 	Transport: &http.Transport{
-		MaxIdleConnsPerHost: 10,
+		MaxIdleConnsPerHost: 100,
 	},
 }
 
-func fetchLinks(url string) ([]Node, error) {
-	res, err := http.Get(url)
+func fetchLinks(url string, ch chan<- []Node, errCh chan<- error) {
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Connection", "keep-alive")
+
+	res, err := httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		errCh <- err
+		return
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
+		errCh <- fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
+		return
 	}
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		return nil, err
+		errCh <- err
+		return
 	}
 
 	var nodes []Node
@@ -48,14 +56,39 @@ func fetchLinks(url string) ([]Node, error) {
 			nodes = append(nodes, Node{Title: title, URL: fullURL, Path: []string{title}})
 		}
 	})
-	return nodes, nil
+	ch <- nodes
+}
+
+func worker(urlQueue <-chan string, resultQueue chan<- []Node, errQueue chan<- error, wg *sync.WaitGroup) {
+	for url := range urlQueue {
+		ch := make(chan []Node)
+		errCh := make(chan error)
+		go fetchLinks(url, ch, errCh)
+		select {
+		case result := <-ch:
+			resultQueue <- result
+		case err := <-errCh:
+			errQueue <- err
+		}
+	}
+	wg.Done()
 }
 
 func iterativeDeepening(start, target Node, maxDepth int) [][]string {
 	var results [][]string
-	var foundFirstDepth bool
+	pathSet := make(map[string]bool) // Map to track unique paths
+	urlQueue := make(chan string, 10)
+	resultQueue := make(chan []Node, 10)
+	errQueue := make(chan error, 10)
 
-	for depth := 0; depth <= maxDepth && !foundFirstDepth; depth++ {
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go worker(urlQueue, resultQueue, errQueue, &wg)
+	}
+
+	var foundDepth int = maxDepth + 1
+	for depth := 0; depth <= maxDepth && depth <= foundDepth; depth++ {
 		visited := make(map[string]bool)
 		var stack []Node
 		start.Path = []string{start.Title}
@@ -65,11 +98,14 @@ func iterativeDeepening(start, target Node, maxDepth int) [][]string {
 			current := stack[len(stack)-1]
 			stack = stack[:len(stack)-1]
 
-			fmt.Println("Checking path:", strings.Join(current.Path, " -> "))
-
-			if current.Title == target.Title && len(current.Path) <= depth+1 {
+			pathKey := strings.Join(current.Path, " -> ")
+			if current.Title == target.Title && !pathSet[pathKey] {
+				fmt.Printf("Path found: %s\n", pathKey) // Print the path immediately when found
 				results = append(results, current.Path)
-				foundFirstDepth = true
+				pathSet[pathKey] = true
+				if depth < foundDepth {
+					foundDepth = depth
+				}
 			}
 
 			if len(current.Path) > depth || visited[current.URL] {
@@ -77,37 +113,48 @@ func iterativeDeepening(start, target Node, maxDepth int) [][]string {
 			}
 
 			visited[current.URL] = true
-			neighbors, err := fetchLinks(current.URL)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
+			urlQueue <- current.URL
 
-			for _, neighbor := range neighbors {
-				if !visited[neighbor.URL] {
-					neighbor.Path = append([]string(nil), current.Path...)
-					neighbor.Path = append(neighbor.Path, neighbor.Title)
-					stack = append(stack, neighbor)
+			select {
+			case neighbors := <-resultQueue:
+				for _, neighbor := range neighbors {
+					if !visited[neighbor.URL] {
+						neighbor.Path = append([]string(nil), current.Path...)
+						neighbor.Path = append(neighbor.Path, neighbor.Title)
+						stack = append(stack, neighbor)
+					}
 				}
+			case err := <-errQueue:
+				log.Println(err)
 			}
 		}
 	}
 
+	close(urlQueue)
+	wg.Wait()
+	close(resultQueue)
+	close(errQueue)
 	return results
 }
 
 func main() {
-	startNode := Node{Title: "Joko Widodo", URL: "https://en.wikipedia.org/wiki/Joko_Widodo", Path: []string{"Joko Widodo"}}
-	targetNode := Node{Title: "Bandung Institute of Technology", URL: "https://en.wikipedia.org/wiki/Bandung_Institute_of_Technology", Path: []string{}}
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
+	startNode := Node{Title: "Bandung Institute of Technology", URL: "https://en.wikipedia.org/wiki/Bandung_Institute_of_Technology", Path: []string{"Bandung Institute of Technology"}}
+	targetNode := Node{Title: "Japan", URL: "https://en.wikipedia.org/wiki/Japan", Path: []string{}}
+
+	fmt.Println("Starting search...")
 	startTime := time.Now()
 	results := iterativeDeepening(startNode, targetNode, 6)
 	elapsedTime := time.Since(startTime)
-	fmt.Println("\nPath(s) found:")
+
+	fmt.Println("\nFinal unique paths found:")
 	pathCounter := 1
 	for _, path := range results {
 		fmt.Printf("%d. %s\n", pathCounter, strings.Join(path, " -> "))
 		pathCounter++
 	}
+
+	fmt.Println("Search completed.")
 	fmt.Println("Elapsed time:", elapsedTime)
 }
