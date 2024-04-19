@@ -85,9 +85,9 @@ func FindLink(startURL, targetTitle string, depth int, hrefs []string) {
 }
 
 func main() {
-	startURL := "https://en.wikipedia.org/wiki/Samsung"
-	targetTitle := "Xiaomi"
-	depth := 2
+	startURL := "https://en.wikipedia.org/wiki/Basketball"
+	targetTitle := "Bandung Institute of Technology"
+	depth := 3
 	var hrefs []string
 	start := time.Now()
 	FindLink(startURL, targetTitle, depth, hrefs)
