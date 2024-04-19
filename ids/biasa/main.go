@@ -16,79 +16,93 @@ type Node struct {
 	Path  []string
 }
 
-func isInList(node Node, list []Node) bool {
-	for _, v := range list {
-		if v.URL == node.URL {
-			return true
-		}
-	}
-	return false
-}
-
-func FindLink(startNode, targetNode Node, depth int, visited []Node) {
-	if depth < 0 {
-		return
-	}
-
-	res, err := http.Get(startNode.URL)
+func fetchLinks(url string) ([]Node, error) {
+	res, err := http.Get(url)
 	if err != nil {
-		log.Println(err)
-		return
+		return nil, err
 	}
 	defer res.Body.Close()
+
 	if res.StatusCode != 200 {
-		log.Printf("status code error: %d %s", res.StatusCode, res.Status)
-		return
+		return nil, fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
 	}
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		log.Println(err)
-		return
+		return nil, err
 	}
 
-	bodyContent := doc.Find("#bodyContent")
-	if bodyContent.Length() == 0 {
-		log.Println("bodyContent not found")
-		return
-	}
+	var nodes []Node
+	doc.Find("#bodyContent p a").Each(func(_ int, s *goquery.Selection) {
+		href, exists := s.Attr("href")
+		if exists && strings.HasPrefix(href, "/wiki/") {
+			title := s.Text()
+			url := "https://en.wikipedia.org" + href
+			nodes = append(nodes, Node{Title: title, URL: url, Path: []string{title}})
+		}
+	})
+	return nodes, nil
+}
 
-	bodyContent.Find("p").Each(func(i int, p *goquery.Selection) {
-		p.Find("a").Each(func(j int, s *goquery.Selection) {
-			href, exists := s.Attr("href")
-			if exists && strings.HasPrefix(href, "/wiki/") {
-				title := s.Text()
-				fmt.Printf("Checking: %s\n", title)
-				if title == targetNode.Title {
-					fmt.Printf("Found: %s\n", title)
-					path := append(startNode.Path, title)
-					fmt.Printf("Path: %s\n", strings.Join(path, " -> "))
-					panic(path)
+func iterativeDeepening(start, target Node, maxDepth int) [][]string {
+	foundPaths := make(map[string]bool)
+	var results [][]string
+
+	for depth := 0; depth <= maxDepth; depth++ {
+		visited := make(map[string]bool)
+		var stack []Node
+		start.Path = []string{start.Title}
+		stack = append(stack, start)
+
+		for len(stack) > 0 {
+			current := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+
+			if current.Title == target.Title && len(current.Path) <= depth+1 {
+				pathStr := strings.Join(current.Path, " -> ")
+				if !foundPaths[pathStr] {
+					foundPaths[pathStr] = true
+					results = append(results, current.Path)
 				}
-				nextNode := Node{Title: title, URL: "https://en.wikipedia.org" + href, Path: append(startNode.Path, title)}
-				if href != "/wiki/Main_Page" && !isInList(nextNode, visited) {
-					visited = append(visited, nextNode)
-					FindLink(nextNode, targetNode, depth-1, visited)
+				continue
+			}
+
+			if len(current.Path) > depth {
+				continue
+			}
+
+			if !visited[current.URL] {
+				visited[current.URL] = true
+				neighbors, err := fetchLinks(current.URL)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+
+				for _, neighbor := range neighbors {
+					if !visited[neighbor.URL] {
+						neighbor.Path = append([]string(nil), current.Path...)
+						neighbor.Path = append(neighbor.Path, neighbor.Title)
+						stack = append(stack, neighbor)
+					}
 				}
 			}
-		})
-	})
+		}
+	}
+
+	return results
 }
 
 func main() {
-	startNode := Node{Title: "Samsung", URL: "https://en.wikipedia.org/wiki/Samsung", Path: []string{"Mike Tyson"}}
-	targetNode := Node{Title: "Xiaomi", URL: "", Path: []string{}}
-	depth := 3
-	var visited []Node
+	startNode := Node{Title: "Bandung Institute of Technology", URL: "https://en.wikipedia.org/wiki/Bandung_Institute_of_Technology", Path: []string{"Bandung Institute of Technology"}}
+	targetNode := Node{Title: "Indonesia", URL: "https://en.wikipedia.org/wiki/Indonesia", Path: []string{}}
 
 	startTime := time.Now()
-	defer func() {
-		if r := recover(); r != nil {
-			path := r.([]string)
-			fmt.Printf("Shortest path: %s\n", strings.Join(path, " -> "))
-			elapsedTime := time.Since(startTime)
-			fmt.Printf("Elapsed time: %v\n", elapsedTime)
-		}
-	}()
-	FindLink(startNode, targetNode, depth, visited)
+	results := iterativeDeepening(startNode, targetNode, 4)
+	elapsedTime := time.Since(startTime)
+
+	for _, path := range results {
+		fmt.Println("Path found:", strings.Join(path, " -> "))
+	}
+	fmt.Println("Elapsed time:", elapsedTime)
 }
