@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -26,6 +27,7 @@ func isInList(str string, list []string) bool {
 }
 
 func FindLink(startURL, targetTitle string, depth int, hrefs []string) {
+	var mu sync.Mutex
 	queue := []Page{{URL: startURL, Path: []string{}, Depth: depth}}
 
 	for len(queue) > 0 {
@@ -76,7 +78,11 @@ func FindLink(startURL, targetTitle string, depth int, hrefs []string) {
 						return
 					} else if href != "/wiki/Main_Page" && !isInList(href, hrefs) {
 						hrefs = append(hrefs, href)
-						queue = append(queue, Page{URL: "https://en.wikipedia.org" + href, Path: currentPage.Path, Depth: currentPage.Depth-1})
+						go func(href string) {
+							mu.Lock()
+							defer mu.Unlock()
+							queue = append(queue, Page{URL: "https://en.wikipedia.org" + href, Path: currentPage.Path, Depth: currentPage.Depth-1})
+						}(href)					
 					}
 				}
 			})
