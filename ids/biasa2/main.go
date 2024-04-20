@@ -103,9 +103,9 @@ func iterativeDeepening(start, target Node, maxDepth int) [][]string {
 				fmt.Printf("Path found: %s\n", pathKey) // Print the path immediately when found
 				results = append(results, current.Path)
 				pathSet[pathKey] = true
-				if depth < foundDepth {
-					foundDepth = depth
-				}
+				// if depth < foundDepth {
+				// 	foundDepth = depth
+				// }
 			}
 
 			if len(current.Path) > depth || visited[current.URL] {
