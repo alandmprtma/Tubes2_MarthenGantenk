@@ -98,8 +98,8 @@ func main() {
 	// startURL := "https://en.wikipedia.org/wiki/Samsung"
 	// targetTitle := "Xiaomi"
 	// depth := 2
-	startURL := "https://en.wikipedia.org/wiki/Basketball"
-	targetTitle := "Bandung Institute of Technology"
+	startURL := "https://en.wikipedia.org/wiki/Bandung"
+	targetTitle := "Japan"
 	depth := 3
 	var hrefs []string
 	var mu sync.Mutex
