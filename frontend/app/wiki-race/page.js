@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Navbar from '../../components/navbar.js';
 import { css } from "@emotion/react";
 import { BeatLoader } from "react-spinners";
+import axios from 'axios';
 // import Particles from 'react-particles-js';
 
 
@@ -20,7 +21,10 @@ export default function Wikirace() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [resultAwal, setResultAwal]= useState([])
+
   const handleChangeAwal = (event) => {
+    handleQuery();
     setAwal(event.target.value);
     setInputsFilled(event.target.value !== '' || akhir !== '');
   };
@@ -49,14 +53,15 @@ export default function Wikirace() {
 
     /* Fungsi Menampilkan Hasil Pencarian Dari Query Dengan Wikipedia API */
     const handleQuery = async () => {
-      const value = query.trim();
+      const value = awal.trim();
   
       try {
         const response = await axios.get(
           `http://localhost:8080/api/wikipedia?query=${encodeURIComponent(value)}`
         );
   
-        setSearchTerm(response.data.query.search.map((item) => item.title));
+        setResultAwal(response.data.query.search.map((item) => item.title));
+        console.log("Result Awal", resultAwal);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -191,6 +196,22 @@ export default function Wikirace() {
                   onChange={handleChangeAwal}
                   placeholder="Masukkan alamat awal"
                 />
+                {
+                  resultAwal && (
+                    <div className='text-white text-xl font-semibold'>
+                      {resultAwal.map((item, index) => {
+                        return (
+                          <div
+                            key={index}
+                            onClick={() => setAwal(item)}
+                          >
+                            {item}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                }
                 {inputsFilled ? (
                   <img src="arrow-right-arrow-left-solid.svg" alt="to" className="w-[25px] mx-3 mt-4 mb-4" />
                 ) : (
