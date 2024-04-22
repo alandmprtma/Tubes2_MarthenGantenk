@@ -1,113 +1,58 @@
-import Image from "next/image";
+"use client"
+import React, { useState } from 'react';
+import Navbar from '../components/navbar.js';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <section
+      className="rounded-lg bg-cover bg-no-repeat p-12 text-center relative object-cover"
+      style={{backgroundImage: "url('/bg-website.png')", width: "100vw", height: "100vh"}}>
+      <div
+        className="absolute bottom-0 left-0 right-0 top-0 h-full w-full object-cover overflow-y-scroll bg-fixed"
+        style={{backgroundColor: "rgba(0, 0, 0, 0.6)"}}>
+        <div className="flex flex-col w-full items-center justify-center">
+        <Navbar/>
+        <img src="/Lemanspedia_Slogan-removebg.png" className='h-[300px] object-cover'/>
+        {/*Start point What is WikiRace Card*/}
+        <div className='rounded-[10px] my-2 w-[70%] h-fit relative border-2 border-white mx-4 mt-[50px]'>
+            <div className='p-4 flex flex-col text-white'>
+                <div className='flex items-start justify-center'>
+                <h3 className='font-bold text-3xl text-white mx-[30px]'>What is <span className="underline">WikiRace</span>?</h3>
+                </div>
+                <div className='flex flex-row justify-center'>
+                  <div className='translate-x-[-100px]'>
+                    {/* <Cybereye/> */}
+                  </div>
+                  <div className='ml-[200px] text-left translate-x-[100px] w-[500px]'>
+                  <p className='font-inter text-l text-white mt-[6px] text-justify'> Wikiracing is a multiplayer virtual game themed around Wikipedia. The game measures the speed at which someone traverses links from one page to another. This game gained prominence among developers as it was once competed in TechOlympics and Yale Freshman Olympics.</p>
+                  <p className='font-inter text-l text-white mt-[6px] text-justify'>The WikiRace processing on this website is done using the Go programming language. The website is capable of processing the entire route from the starting address to the destination Wikipedia address using the Iterative Deepening Search (IDS) and Breadth First Search (BFS) algorithms to complete the WikiRace game. The website can accept input in the form of algorithm type, initial article title, and destination article title. The output provided by the website includes the number of articles examined, the number of articles traversed, the route of article exploration (from the initial article to the destination article), and the search time (in ms).</p>
+                  </div>
+                </div>
+              </div>
+          </div>
+          {/*end point What is WikiRace Card*/}
+          {/* starpoint BFS IDS Algorithm */}
+          <div className='justify-around w-full h-fit flex flex-row mb-[50px]'>
+            {/* Algoritma BFS */}
+          <div className='rounded-[10px] my-2 w-[32%] h-full relative border-2 border-white mx-4 mt-[50px] ml-[15%]'>
+            <h2 className='font-bold text-2xl text-white'>Breadth First Search (BFS)</h2>
+            <p className='font-inter text-l text-white mt-[6px] text-justify mx-[10px]'>Breadth-First Search (BFS) is a fundamental algorithm used in graph theory and computer science. It operates by exploring all the vertices (nodes) of a graph systematically, starting from a designated source vertex. The algorithm maintains a queue data structure to keep track of the vertices that need to be explored. At the beginning of the traversal, the source vertex is enqueued into the queue. Then, BFS iteratively dequeues vertices from the front of the queue and explores their adjacent vertices. This process continues until all vertices in the graph have been visited or until the desired condition is met. One of the key features of BFS is that it guarantees the shortest path from the source vertex to any other vertex in an unweighted graph. This property makes it particularly useful for tasks such as finding the shortest path between two nodes, determining connectivity, or exploring all reachable nodes in a graph. BFS is also commonly used in various applications such as network routing protocols, web crawlers, social network analysis, and shortest path algorithms in GPS navigation systems. Its simplicity and efficiency make it a versatile algorithm for solving a wide range of graph-related problems.</p>
+          <div className='flex justify-center'>
+          <img src='/BFS.gif' className='h-[250px] my-[70px]'/>
+          </div>
+          </div>
+          {/* Algoritma IDS */}
+          <div className='rounded-[10px] my-2 w-[32%] h-full relative border-2 border-white mx-4 mt-[50px] mr-[15%]'>
+            <h2 className='font-bold text-2xl text-white'>Iterative Deepening Search (IDS)</h2>
+            <p className='font-inter text-l text-white mt-[6px] text-justify mx-[10px]'>
+Iterative Deepening Search (IDS) is a systematic search algorithm utilized for traversing trees or graphs. Operating with a strategy that amalgamates the benefits of Depth-First Search (DFS) and the completeness of Breadth-First Search (BFS), IDS iteratively conducts DFS with escalating depth limits until the target goal is attained. The algorithm initiates with an initial depth limit of 0 and proceeds to explore the search space. Initially, it performs DFS starting from the root node, restricting the depth of exploration to the current depth limit. Should the goal node be encountered within this limit, the solution is promptly returned. In cases where the goal node remains undiscovered but unexplored nodes exist at the current depth limit, the exploration continues. However, if DFS exhausts the exploration at the current depth limit without locating the goal node, the depth limit is incremented by 1, and the process is reiterated. This iterative approach persists until the goal node is successfully found or until all nodes within the search space have been explored. The utilization of iterative deepening in IDS allows for a balance between memory efficiency and search completeness, rendering it particularly suitable for scenarios where the depth of the solution is unknown or where memory constraints are pertinent.</p>
+          <div className='flex justify-center'>
+          <img src='/IDS.gif' className='h-[350px]'/>
+          </div>
+          </div>
+          </div>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </section>
   );
 }
