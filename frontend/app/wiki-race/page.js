@@ -35,21 +35,24 @@ export default function Wikirace() {
   };
 
   const handleSubmit = async (event) => {
-    setSubmitted(false);
-    setLoading(true); // Set loading to true
     event.preventDefault();
+    setLoading(true); // Set loading to true
     try {
-      // Lakukan proses pengiriman data
-      await delay(2000); // Misalnya, panggil API
-      // Setelah selesai, atur state loading menjadi false
+      // Send a POST request to the /search endpoint
+      await axios.post('http://localhost:8080/search', {
+        start: awal,
+        target: akhir
+      });
+      // After the request is complete, set loading to false
       setLoading(false);
-      // Atur submitted menjadi true setelah proses selesai
+      // Set submitted to true after the process is complete
       setSubmitted(true);
     } catch (error) {
       console.error(error);
-      setLoading(false); // Jika terjadi kesalahan, set loading menjadi false
+      setLoading(false); // If an error occurs, set loading to false
     }
   };
+  
 
     /* Fungsi Menampilkan Hasil Pencarian Dari Query Dengan Wikipedia API */
     const handleQuery = async () => {
