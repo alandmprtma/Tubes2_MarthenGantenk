@@ -20,10 +20,10 @@ export default function Home() {
                 <h3 className='font-bold text-3xl text-white mx-[30px]'>What is <span className="underline">WikiRace</span>?</h3>
                 </div>
                 <div className='flex flex-row justify-center'>
-                  <div className='translate-x-[-100px]'>
-                    {/* <Cybereye/> */}
+                  <div className=''>
+                    <img src={'\wikipedia-logo.png'} className='w-[400px] mt-[20px]'/>
                   </div>
-                  <div className='ml-[200px] text-left translate-x-[100px] w-[500px]'>
+                  <div className=' text-left w-[500px] ml-[25px]'>
                   <p className='font-inter text-l text-white mt-[6px] text-justify'> Wikiracing is a multiplayer virtual game themed around Wikipedia. The game measures the speed at which someone traverses links from one page to another. This game gained prominence among developers as it was once competed in TechOlympics and Yale Freshman Olympics.</p>
                   <p className='font-inter text-l text-white mt-[6px] text-justify'>The WikiRace processing on this website is done using the Go programming language. The website is capable of processing the entire route from the starting address to the destination Wikipedia address using the Iterative Deepening Search (IDS) and Breadth First Search (BFS) algorithms to complete the WikiRace game. The website can accept input in the form of algorithm type, initial article title, and destination article title. The output provided by the website includes the number of articles examined, the number of articles traversed, the route of article exploration (from the initial article to the destination article), and the search time (in ms).</p>
                   </div>

@@ -20,16 +20,18 @@ export default function Wikirace() {
   const [inputsFilled, setInputsFilled] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  // State untuk autocomplete
   const [resultAwal, setResultAwal]= useState([])
+  const [resultAkhir, setResultAkhir]= useState([])
 
   const handleChangeAwal = (event) => {
-    handleQuery();
+    handleQueryAwal();
     setAwal(event.target.value);
     setInputsFilled(event.target.value !== '' || akhir !== '');
   };
 
   const handleChangeAkhir = (event) => {
+    handleQueryAkhir();
     setAkhir(event.target.value);
     setInputsFilled(awal !== '' || event.target.value !== '');
   };
@@ -55,7 +57,7 @@ export default function Wikirace() {
   
 
     /* Fungsi Menampilkan Hasil Pencarian Dari Query Dengan Wikipedia API */
-    const handleQuery = async () => {
+    const handleQueryAwal = async () => {
       const value = awal.trim();
   
       try {
@@ -65,6 +67,21 @@ export default function Wikirace() {
   
         setResultAwal(response.data.query.search.map((item) => item.title));
         console.log("Result Awal", resultAwal);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    const handleQueryAkhir = async () => {
+      const value = akhir.trim();
+  
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/api/wikipedia?query=${encodeURIComponent(value)}`
+        );
+  
+        setResultAkhir(response.data.query.search.map((item) => item.title));
+        console.log("Result Akhir", resultAwal);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -191,6 +208,7 @@ export default function Wikirace() {
             <h2 className="mb-4 text-2xl font-semibold">Find the shortest paths from</h2>
             <form onSubmit={handleSubmit}>
               <label className=' mb-[20px] flex flex-row'>
+                <div flex flex-col>
                 <input
                   className='w-[500px] h-[60px] font-inter rounded-[10px] border-2 border-white mr-2'
                   style={{ backgroundColor: 'rgba(255, 255, 255, 0)' }}
@@ -201,10 +219,10 @@ export default function Wikirace() {
                 />
                 {
                   resultAwal && (
-                    <div className='text-white text-xl font-semibold'>
+                    <div className='text-white text-l flex flex-col items-center'>
                       {resultAwal.map((item, index) => {
                         return (
-                          <div
+                          <div className='border-[1px] w-[475px] border-white'
                             key={index}
                             onClick={() => setAwal(item)}
                           >
@@ -215,11 +233,13 @@ export default function Wikirace() {
                     </div>
                   )
                 }
+                </div>
                 {inputsFilled ? (
-                  <img src="arrow-right-arrow-left-solid.svg" alt="to" className="w-[25px] mx-3 mt-4 mb-4" />
+                  <img src="arrow-right-arrow-left-solid.svg" alt="to" className="w-[25px] mx-3 mt-4 mb-4 h-[25px] top-0" />
                 ) : (
-                  <h2 className="mx-3 mt-4 mb-4 text-2xl font-semibold">to</h2>
+                  <h2 className="mx-3 mt-4 mb-4 text-2xl font-semibold h-[60px]">to</h2>
                 )}
+                <div flex flex-col>
                 <input
                   className='w-[500px] h-[60px] font-inter rounded-[10px] border-2 border-white mr-2'
                   style={{ backgroundColor: 'rgba(255, 255, 255, 0)' }}
@@ -228,6 +248,23 @@ export default function Wikirace() {
                   onChange={handleChangeAkhir}
                   placeholder="Masukkan alamat akhir"
                 />
+                {
+                  resultAkhir && (
+                    <div className='text-white text-l flex flex-col items-center'>
+                      {resultAkhir.map((item, index) => {
+                        return (
+                          <div className='border-[1px] w-[475px] border-white'
+                            key={index}
+                            onClick={() => setAkhir(item)}
+                          >
+                            {item}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                }
+                </div>
               </label>
               <h4 className="mb-2 text-xl font-semibold">Algorithm Type</h4>
               <div flex flex-row>
@@ -249,7 +286,7 @@ export default function Wikirace() {
                 </div>
               
                 <button type="submit"
-                className='mt-4 mx-4 rounded border-2 border-neutral-50 px-7 pb-[8px] pt-[10px] text-sm font-bold uppercase leading-normal text-neutral-50 transition duration-150 ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10'
+                className='mt-4 mx-4 mb-[50px] rounded border-2 border-neutral-50 px-7 pb-[8px] pt-[10px] text-sm font-bold uppercase leading-normal text-neutral-50 transition duration-150 ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10'
                 data-twe-ripple-init
                 data-twe-ripple-color="light">
                   GO!Lang
