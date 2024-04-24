@@ -19,6 +19,7 @@ export default function Wikirace() {
   const [akhir, setAkhir] = useState('');
   const [inputsFilled, setInputsFilled] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [openAwal, setOpenAwal] = useState(false);
   const [openAkhir, setOpenAkhir] = useState(false);
@@ -52,21 +53,22 @@ export default function Wikirace() {
   };
 
   const handleSubmit = async (event) => {
-    setSubmitted(false);
-    setLoading(true); // Set loading to true
     event.preventDefault();
+    setLoading(true);
     try {
-      // Lakukan proses pengiriman data
-      await delay(2000); // Misalnya, panggil API
-      // Setelah selesai, atur state loading menjadi false
+      const response = await axios.post('http://localhost:8080/search', {
+        start: awal,
+        target: akhir
+      });
       setLoading(false);
-      // Atur submitted menjadi true setelah proses selesai
       setSubmitted(true);
+      setResults(response.data);
     } catch (error) {
       console.error(error);
-      setLoading(false); // Jika terjadi kesalahan, set loading menjadi false
+      setLoading(false);
     }
   };
+  
 
     const handleQueryAwal = async () => {
       const value = awal.trim();
@@ -280,16 +282,24 @@ export default function Wikirace() {
                 <p className="ml-2 text-white">Loading...</p>
               </div>
             )}
-            {submitted && (
+            {submitted && results && (
               <div>
-                <p className="text-white mt-4">Found <strong>... paths</strong> from <strong>{awal}</strong> to <strong>{akhir}</strong> in ... seconds!</p>
+                <p className="text-white mt-4">Found <strong>{results.numberOfPaths} paths</strong> from <strong>{awal}</strong> to <strong>{akhir}</strong> in <strong>{results.elapsedTime} seconds</strong>!</p>
                 <h2 className='mt-8 text-2xl font-bold'> Result </h2>
                 <div className="mt-4 w-full flex flex-col items-center justify-center">
                   <div className="w-[900px] h-[450px] bg-black font-inter rounded-[10px] border-2 border-white mr-2"
                     style={{ backgroundColor: 'rgba(255, 255, 255, 0)' }}>
-                    <p className="text-white">Result content here...</p>
+                    {results.paths.map((path, index) => (
+                      <p key={index} className="text-white">
+                        {index+1}. {path.map((node, nodeIndex) => (
+                          <React.Fragment key={nodeIndex}>
+                            <a className="wiki-link" href={`https://en.wikipedia.org/wiki/${encodeURIComponent(node)}`} target="_blank" rel="noopener noreferrer">{node}</a>
+                            {nodeIndex < path.length - 1 && ' -> '}
+                          </React.Fragment>
+                        ))}
+                      </p>
+                    ))}
                   </div>
-                  <h2 className='mt-8 mb-4 text-2xl font-bold'> Individual Paths </h2>
                 </div>
               </div>
             )}
