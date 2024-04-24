@@ -9,17 +9,17 @@ const Navbar = () => {
         <Image src={icon} alt="Lemanspedia Logo" width={70} height={70} className='ml-[25px]' />
         <ul className='flex flex-row gap-x-[170px]'>
             <li>
-                <Link href="/" className='hover:text-3xl cursor-pointer transition-none mx-8'>
+                <Link href="/" className='hover:text-[#ADD8E6] cursor-pointer transition-none mx-8'>
                     <span className='font-bold text-xl'>Home</span>
                 </Link>
             </li>
             <li>
-                <Link href="/wiki-race" className='hover:text-3xl cursor-pointer transition-none mx-4'>
+                <Link href="/wiki-race" className='hover:text-[#ADD8E6] cursor-pointer transition-none mx-4'>
                     <span className='font-bold text-xl'>Wiki Race</span>
                 </Link>
             </li>
             <li>
-                <Link href="/about-us" className='hover:text-3xl cursor-pointer transition-none mx-8'>
+                <Link href="/about-us" className='hover:text-[#ADD8E6] cursor-pointer transition-none mx-8'>
                     <span className='font-bold text-xl'>About Us</span> 
                 </Link>
             </li>

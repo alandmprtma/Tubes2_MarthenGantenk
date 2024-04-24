@@ -21,17 +21,32 @@ export default function Wikirace() {
   const [submitted, setSubmitted] = useState(false);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [openAwal, setOpenAwal] = useState(false);
+  const [openAkhir, setOpenAkhir] = useState(false);
   // State untuk autocomplete
   const [resultAwal, setResultAwal]= useState([])
   const [resultAkhir, setResultAkhir]= useState([])
+  const [activeAlgorithm, setActiveAlgorithm] = useState(''); // default to BFS
+  const [activeSolution, setActiveSolution] = useState(''); // default to Single Solution
+
+  const handleAlgorithmClick = (algorithm) => {
+    console.log("Algorithm", algorithm);
+    setActiveAlgorithm(algorithm);
+  };
+
+  const handleSolutionClick = (solution) => {
+    setActiveSolution(solution);
+  };
 
   const handleChangeAwal = (event) => {
+    setOpenAwal(true);
     handleQueryAwal();
     setAwal(event.target.value);
     setInputsFilled(event.target.value !== '' || akhir !== '');
   };
 
   const handleChangeAkhir = (event) => {
+    setOpenAkhir(true);
     handleQueryAkhir();
     setAkhir(event.target.value);
     setInputsFilled(awal !== '' || event.target.value !== '');
@@ -55,148 +70,81 @@ export default function Wikirace() {
   };
   
 
-    /* Fungsi Menampilkan Hasil Pencarian Dari Query Dengan Wikipedia API */
     const handleQueryAwal = async () => {
       const value = awal.trim();
-  
-      try {
-        const response = await axios.get(
-          `http://localhost:8080/api/wikipedia?query=${encodeURIComponent(value)}`
-        );
-  
-        setResultAwal(response.data.query.search.map((item) => item.title));
-        console.log("Result Awal", resultAwal);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
 
-    const handleQueryAkhir = async () => {
-      const value = akhir.trim();
-  
+      // if (!value) {
+      //     console.error("No query provided");
+      //     return;
+      // }
+
       try {
-        const response = await axios.get(
-          `http://localhost:8080/api/wikipedia?query=${encodeURIComponent(value)}`
-        );
-  
-        setResultAkhir(response.data.query.search.map((item) => item.title));
-        console.log("Result Akhir", resultAwal);
+          const response = await axios.get(
+              `http://localhost:8080/api/wikipedia?query=${encodeURIComponent(value)}`
+          );
+
+          console.log("Response data:", response.data); // Check response structure
+
+          // Assuming response.data is directly an array of results as per your backend code
+          if (Array.isArray(response.data)) {
+              const results = response.data.map(item => ({
+                  title: item.title,
+                  thumbnail: item.thumbnail || "", // Handle missing thumbnail
+              }));
+
+              console.log("Formatted results:", results);
+              setResultAwal(results); // Assuming setResultAwal is your state setter
+          } else {
+              console.error('Error fetching data: Invalid response format');
+          }
       } catch (error) {
-        console.error('Error fetching data:', error);
+          console.error('Error fetching data:', error);
       }
-    };
+  };
+
+    
+  const handleQueryAkhir = async () => {
+    const value = akhir.trim();
+
+    // if (!value) {
+    //     console.error("No query provided");
+    //     return;
+    // }
+
+    try {
+        const response = await axios.get(
+            `http://localhost:8080/api/wikipedia?query=${encodeURIComponent(value)}`
+        );
+
+        console.log("Response data:", response.data); // Check response structure
+
+        // Assuming response.data is directly an array of results as per your backend code
+        if (Array.isArray(response.data)) {
+            const results = response.data.map(item => ({
+                title: item.title,
+                thumbnail: item.thumbnail || "", // Handle missing thumbnail
+            }));
+
+            console.log("Formatted results:", results);
+            setResultAkhir(results); // Assuming setResultAwal is your state setter
+        } else {
+            console.error('Error fetching data: Invalid response format');
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ // Button style base
+ const baseStyle = "mx-4 rounded border-2 px-7 pb-[8px] pt-[10px] text-sm font-medium uppercase leading-normal transition duration-150 ease-in-out focus:outline-none focus:ring-0";
+ // Common dynamic style
+ const dynamicStyle = (isActive) => 
+   `${baseStyle} ${isActive ? 'border-neutral-100 text-neutral-100 bg-neutral-500 bg-opacity-50' : 'border-neutral-50 text-neutral-50 hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100'}`;
 
   return (
     <section
       className="rounded-lg bg-cover bg-no-repeat p-12 text-center relative object-cover"
       style={{backgroundImage: "url('/bg-website.png')", width: "100vw", height: "100vh"}}>
-        {/* <Particles
-          params={{
-            "particles": {
-              "number": {
-                "value": 200,
-                "density": {
-                  "enable": true,
-                  "value_area": 800
-                }
-              },
-              "color": {
-                "value": "#ffffff"
-              },
-              "shape": {
-                "type": "circle",
-                "stroke": {
-                  "width": 0,
-                  "color": "#000000"
-                },
-                "polygon": {
-                  "nb_sides": 5
-                }
-              },
-              "opacity": {
-                "value": 0.5,
-                "random": true,
-                "anim": {
-                  "enable": false,
-                  "speed": 1,
-                  "opacity_min": 0.1,
-                  "sync": false
-                }
-              },
-              "size": {
-                "value": 3,
-                "random": true,
-                "anim": {
-                  "enable": false,
-                  "speed": 40,
-                  "size_min": 0.1,
-                  "sync": false
-                }
-              },
-              "line_linked": {
-                "enable": false,
-                "distance": 150,
-                "color": "#ffffff",
-                "opacity": 0.4,
-                "width": 1
-              },
-              "move": {
-                "enable": true,
-                "speed": 6,
-                "direction": "none",
-                "random": false,
-                "straight": false,
-                "out_mode": "out",
-                "bounce": false,
-                "attract": {
-                  "enable": false,
-                  "rotateX": 600,
-                  "rotateY": 1200
-                }
-              }
-            },
-            "interactivity": {
-              "detect_on": "canvas",
-              "events": {
-                "onhover": {
-                  "enable": true,
-                  "mode": "bubble"
-                },
-                "onclick": {
-                  "enable": true,
-                  "mode": "repulse"
-                },
-                "resize": true
-              },
-              "modes": {
-                "grab": {
-                  "distance": 400,
-                  "line_linked": {
-                    "opacity": 1
-                  }
-                },
-                "bubble": {
-                  "distance": 250,
-                  "size": 0,
-                  "duration": 2,
-                  "opacity": 0,
-                  "speed": 3
-                },
-                "repulse": {
-                  "distance": 400,
-                  "duration": 0.4
-                },
-                "push": {
-                  "particles_nb": 4
-                },
-                "remove": {
-                  "particles_nb": 2
-                }
-              }
-            },
-            "retina_detect": true
-          }}
-        /> */}
       <div
         className="absolute bottom-0 left-0 right-0 top-0 h-full w-full object-cover overflow-y-scroll bg-fixed"
         style={{backgroundColor: "rgba(0, 0, 0, 0.6)"}}>
@@ -216,22 +164,28 @@ export default function Wikirace() {
                   onChange={handleChangeAwal}
                   placeholder="Masukkan alamat awal"
                 />
-                {
-                  resultAwal && (
-                    <div className='text-white text-l flex flex-col items-center'>
-                      {resultAwal.map((item, index) => {
-                        return (
-                          <div className='border-[1px] w-[475px] border-white'
-                            key={index}
-                            onClick={() => setAwal(item)}
-                          >
-                            {item}
+                {resultAwal && openAwal && (
+                  <div className='text-white text-l flex flex-col items-center h-[200px] overflow-y-scroll absolute'>
+                    {resultAwal.map((item, index) => {
+                      return (
+                        <div className='border-[1px] w-[475px] border-white flex flex-row items-center p-2 mb-2 rounded-lg bg-[#333]'
+                          key={index}
+                          onClick={() => {
+                            setAwal(item.title)
+                            setOpenAwal((prev) =>!prev)
+                          }}
+                        >
+                          {item.thumbnail && (
+                            <img src={item.thumbnail} alt={item.title} className='w-10 h-10 mr-2 rounded-full'/>
+                          )}
+                          <div>
+                            <p className='font-bold'>{item.title}</p>
                           </div>
-                        )
-                      })}
-                    </div>
-                  )
-                }
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
                 </div>
                 {inputsFilled ? (
                   <img src="arrow-right-arrow-left-solid.svg" alt="to" className="w-[25px] mx-3 mt-4 mb-4 h-[25px] top-0" />
@@ -247,48 +201,78 @@ export default function Wikirace() {
                   onChange={handleChangeAkhir}
                   placeholder="Masukkan alamat akhir"
                 />
-                {
-                  resultAkhir && (
-                    <div className='text-white text-l flex flex-col items-center'>
-                      {resultAkhir.map((item, index) => {
-                        return (
-                          <div className='border-[1px] w-[475px] border-white'
-                            key={index}
-                            onClick={() => setAkhir(item)}
-                          >
-                            {item}
+                {resultAkhir && openAkhir && (
+                  <div className='text-white text-l flex flex-col items-center h-[200px] overflow-y-scroll absolute'>
+                    {resultAkhir.map((item, index) => {
+                      return (
+                        <div className='border-[1px] w-[475px] border-white flex flex-row items-center p-2 mb-2 rounded-lg bg-[#333]'
+                          key={index}
+                          onClick={() => {
+                            setAkhir(item.title)
+                            setOpenAkhir((prev) =>!prev)
+                          }}
+                        >
+                          {item.thumbnail && (
+                            <img src={item.thumbnail} alt={item.title} className='w-10 h-10 mr-2 rounded-full'/>
+                          )}
+                          <div>
+                            <p className='font-bold'>{item.title}</p>
                           </div>
-                        )
-                      })}
-                    </div>
-                  )
-                }
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
                 </div>
               </label>
-              <h4 className="mb-2 text-xl font-semibold">Algorithm Type</h4>
               <div flex flex-row>
-                <div>
-                  <button
-                    type="button"
-                    className="mx-4 rounded border-2 border-neutral-50 px-7 pb-[8px] pt-[10px] text-sm font-medium uppercase leading-normal text-neutral-50 transition duration-150 ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-                    data-twe-ripple-init
-                    data-twe-ripple-color="light">
-                    BFS
-                  </button>
-                  <button
-                    type="button"
-                    className="mx-4 rounded border-2 border-neutral-50 px-7 pb-[8px] pt-[10px] text-sm font-medium uppercase leading-normal text-neutral-50 transition duration-150 ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10"
-                    data-twe-ripple-init
-                    data-twe-ripple-color="light">
-                    IDS
-                  </button>
-                </div>
-              
-                <button type="submit"
+              <h4 className="mb-2 text-xl font-semibold">Algorithm Type</h4>
+              <div>
+                <button
+                  type="button"
+                  className={dynamicStyle(activeAlgorithm === 'BFS')}
+                  onClick={() => handleAlgorithmClick('BFS')}
+                  data-twe-ripple-init
+                  data-twe-ripple-color="light"
+                >
+                  BFS
+                </button>
+                <button
+                  type="button"
+                  className={dynamicStyle(activeAlgorithm === 'IDS')}
+                  onClick={() => handleAlgorithmClick('IDS')}
+                  data-twe-ripple-init
+                  data-twe-ripple-color="light"
+                >
+                  IDS
+                </button>
+              </div>
+              <h4 className="mb-2 text-xl font-semibold mt-3">Solution Type</h4>
+              <div>
+                <button
+                  type="button"
+                  className={dynamicStyle(activeSolution === 'Single Solution')}
+                  onClick={() => handleSolutionClick('Single Solution')}
+                  data-twe-ripple-init
+                  data-twe-ripple-color="light"
+                >
+                  Single Solution
+                </button>
+                <button
+                  type="button"
+                  className={dynamicStyle(activeSolution === 'Multi Solution')}
+                  onClick={() => handleSolutionClick('Multi Solution')}
+                  data-twe-ripple-init
+                  data-twe-ripple-color="light"
+                >
+                  Multi Solution
+                </button>
+              </div>
+              <button type="submit"
                 className='mt-4 mx-4 mb-[50px] rounded border-2 border-neutral-50 px-7 pb-[8px] pt-[10px] text-sm font-bold uppercase leading-normal text-neutral-50 transition duration-150 ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10'
                 data-twe-ripple-init
                 data-twe-ripple-color="light">
-                  GO!Lang
+                  Submit!
               </button>
               </div>
             </form>
