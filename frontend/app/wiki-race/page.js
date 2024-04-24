@@ -19,6 +19,7 @@ export default function Wikirace() {
   const [akhir, setAkhir] = useState('');
   const [inputsFilled, setInputsFilled] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   // State untuk autocomplete
   const [resultAwal, setResultAwal]= useState([])
@@ -41,7 +42,7 @@ export default function Wikirace() {
     setLoading(true); // Set loading to true
     try {
       // Send a POST request to the /search endpoint
-      await axios.post('http://localhost:8080/search', {
+      const response = await axios.post('http://localhost:8080/search', {
         start: awal,
         target: akhir
       });
@@ -49,6 +50,8 @@ export default function Wikirace() {
       setLoading(false);
       // Set submitted to true after the process is complete
       setSubmitted(true);
+      // Store the results from the server in the results state variable
+      setResults(response.data);
     } catch (error) {
       console.error(error);
       setLoading(false); // If an error occurs, set loading to false
@@ -299,14 +302,16 @@ export default function Wikirace() {
                 <p className="ml-2 text-white">Loading...</p>
               </div>
             )}
-            {submitted && (
+            {submitted && results && (
               <div>
-                <p className="text-white mt-4">Found <strong>... paths</strong> from <strong>{awal}</strong> to <strong>{akhir}</strong> in ... seconds!</p>
+                <p className="text-white mt-4">Found <strong>{results.numberOfPaths} paths</strong> from <strong>{awal}</strong> to <strong>{akhir}</strong> in <strong>{results.elapsedTime} seconds</strong>!</p>
                 <h2 className='mt-8 text-2xl font-bold'> Result </h2>
                 <div className="mt-4 w-full flex flex-col items-center justify-center">
                   <div className="w-[900px] h-[450px] bg-black font-inter rounded-[10px] border-2 border-white mr-2"
                     style={{ backgroundColor: 'rgba(255, 255, 255, 0)' }}>
-                    <p className="text-white">Result content here...</p>
+                    {results.paths.map((path, index) => (
+                      <p key={index} className="text-white">{index+1}. {path.join(' -> ')}</p>
+                    ))}
                   </div>
                   <h2 className='mt-8 mb-4 text-2xl font-bold'> Individual Paths </h2>
                 </div>
