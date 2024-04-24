@@ -145,6 +145,7 @@ func handleSearchRequest(w http.ResponseWriter, r *http.Request) {
 	// convert start and target to Node
 	startNode := Node{Title: start, URL: "https://en.wikipedia.org/wiki/" + replaceSpacesWithUnderscores(start)}
 	targetNode := Node{Title: target, URL: "https://en.wikipedia.org/wiki/" + replaceSpacesWithUnderscores(target)}
+	// paths, articlesChecked, articlesTraversed, numberPath, elapsedTime := bfsSingleCall(startNode, targetNode, 5) // you can adjust the maxDepth as needed
 	paths, articlesChecked, articlesTraversed, numberPath, elapsedTime := iterativeDeepeningAll(startNode, targetNode, 5) // you can adjust the maxDepth as needed
 
 	response := Response{

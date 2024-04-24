@@ -26,7 +26,7 @@ func isInList(str string, list []string) bool {
 	return false
 }
 
-func FindLink(startURL, targetTitle string, depth int, hrefs []string, mu *sync.Mutex) {
+func FindLinkMulti(startURL, targetTitle string, depth int, hrefs []string, mu *sync.Mutex) {
 	queue := []Page{{URL: startURL, Path: []string{}, Depth: depth}}
 
 	for len(queue) > 0 {
@@ -104,7 +104,7 @@ func main() {
 	var hrefs []string
 	var mu sync.Mutex
 	start := time.Now()
-	FindLink(startURL, targetTitle, depth, hrefs, &mu)
+	FindLinkMulti(startURL, targetTitle, depth, hrefs, &mu)
 	elapsed := time.Since(start)
 	fmt.Printf("Waktu yang dibutuhkan: %s\n", elapsed)
 }
