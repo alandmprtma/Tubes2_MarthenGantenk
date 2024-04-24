@@ -1,5 +1,4 @@
-"use client"
-import React, { useState } from 'react';
+import React from 'react';
 import Navbar from '../../components/navbar.js';
 // import aland from '/aland.jpg';
 // import qika from '/qika.jpg';
@@ -31,12 +30,6 @@ export default function Aboutus() {
       ];
 
   return (
-    <section
-    className="rounded-lg bg-cover bg-no-repeat p-12 text-center relative object-cover"
-    style={{backgroundImage: "url('/bg-website.png')", width: "100vw", height: "100vh"}}>
-    <div
-      className="absolute bottom-0 left-0 right-0 top-0 h-full w-full object-cover overflow-y-scroll bg-fixed"
-      style={{backgroundColor: "rgba(0, 0, 0, 0.6)"}}>
       <div className="flex flex-col w-full items-center justify-center">
       <Navbar/>
       <h1 className='font-bold text-3xl text-white mt-3'>LEMANSPEDIA CONTRIBUTORS</h1>
@@ -57,7 +50,5 @@ export default function Aboutus() {
         })}
       </article>
       </div>
-    </div>
-    </section>
     );
 }

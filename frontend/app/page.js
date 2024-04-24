@@ -1,15 +1,8 @@
-"use client"
-import React, { useState } from 'react';
+import React from 'react';
 import Navbar from '../components/navbar.js';
 
 export default function Home() {
   return (
-    <section
-      className="rounded-lg bg-cover bg-no-repeat p-12 text-center relative object-cover"
-      style={{backgroundImage: "url('/bg-website.png')", width: "100vw", height: "100vh"}}>
-      <div
-        className="absolute bottom-0 left-0 right-0 top-0 h-full w-full object-cover overflow-y-scroll bg-fixed"
-        style={{backgroundColor: "rgba(0, 0, 0, 0.6)"}}>
         <div className="flex flex-col w-full items-center justify-center">
         <Navbar/>
         <img src="/Lemanspedia_Slogan-removebg.png" className='h-[300px] object-cover'/>
@@ -52,7 +45,5 @@ Iterative Deepening Search (IDS) is a systematic search algorithm utilized for t
           </div>
           </div>
         </div>
-      </div>
-    </section>
   );
 }
