@@ -11,6 +11,20 @@ import (
 	"github.com/rs/cors"
 )
 
+type SearchResult struct {
+    Title     string `json:"title"`
+	PageID    int64  `json:"pageid"` 
+    Thumbnail struct {
+        Source string `json:"source"`
+    } `json:"thumbnail"`
+}
+
+type SearchResponse struct {
+	Query struct {
+		Search []SearchResult `json:"search"`
+	} `json:"query"`
+}
+
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/search", handleSearchRequest).Methods("POST")
@@ -30,7 +44,41 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }
 
+// Fungsi untuk fetching gambar
+// Function to fetch detailed information for a given page ID
+func fetchPageDetails(pageID int64) (string, error) {
+    detailsURL := fmt.Sprintf("https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&pageids=%d&pithumbsize=500", pageID)
+    resp, err := http.Get(detailsURL)
+    if err != nil {
+        return "", err
+    }
+    defer resp.Body.Close()
+
+    var result struct {
+        Query struct {
+            Pages map[string]struct {
+                Thumbnail struct {
+                    Source string `json:"source"`
+                } `json:"thumbnail"`
+            } `json:"pages"`
+        } `json:"query"`
+    }
+
+    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+        return "", err
+    }
+
+    for _, page := range result.Query.Pages {
+        if page.Thumbnail.Source != "" {
+            return page.Thumbnail.Source, nil
+        }
+    }
+
+    return "", fmt.Errorf("no image found for page ID: %d", pageID)
+}
+
 /* Fungsi Menampilkan Hasil Pencarian Dari Wikipedia API */
+/* Fungsi Menampilkan Hasil Pencarian Dari Wikipedia API dengan hanya judul dan link gambar */
 func handleWikipediaRequest(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("query")
 	if query == "" {
@@ -38,7 +86,9 @@ func handleWikipediaRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	wikipediaURL := "https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=" + url.QueryEscape(query)
+	// Update the URL to fetch necessary data only
+	wikipediaURL := "https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=" + url.QueryEscape(query) + "&srlimit=10&srprop=snippet|thumbnail"
+
 	response, err := http.Get(wikipediaURL)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -46,16 +96,33 @@ func handleWikipediaRequest(w http.ResponseWriter, r *http.Request) {
 	}
 	defer response.Body.Close()
 
-	var data interface{}
-	err = json.NewDecoder(response.Body).Decode(&data)
+	var searchResponse SearchResponse
+	err = json.NewDecoder(response.Body).Decode(&searchResponse)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Adjust the data structure to include only the title and thumbnail
+	var searchResults []map[string]interface{}
+	for _, result := range searchResponse.Query.Search {
+		searchResult := map[string]interface{}{
+			"title": result.Title,
+		}
+		imageLink, err := fetchPageDetails(result.PageID) // Now correctly using PageID
+		if err != nil {
+			log.Printf("Failed to fetch image for page ID %d: %s", result.PageID, err)
+			searchResult["thumbnail"] = ""
+		} else {
+			searchResult["thumbnail"] = imageLink
+		}
+		searchResults = append(searchResults, searchResult)
+	}
+	
+
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	json.NewEncoder(w).Encode(searchResults)
 }
 
 func handleSearchRequest(w http.ResponseWriter, r *http.Request) {
