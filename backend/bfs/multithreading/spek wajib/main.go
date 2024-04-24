@@ -26,7 +26,7 @@ func isInList(str string, list []string) bool {
 	return false
 }
 
-func FindLink(startURL, targetTitle string, depth int, hrefs []string, mu *sync.Mutex, passed *int, found *bool) {
+func FindLinkSingle(startURL, targetTitle string, depth int, hrefs []string, mu *sync.Mutex, passed *int, found *bool) {
 	queue := []Page{{URL: startURL, Path: []string{}, Depth: depth}}
 
 	for len(queue) > 0 {
@@ -70,8 +70,8 @@ func FindLink(startURL, targetTitle string, depth int, hrefs []string, mu *sync.
 				}
 
 				content := doc.Find("#mw-content-text")
-				content.Find("p").Each(func(i int, p *goquery.Selection) {
-					p.Find("a").Each(func(j int, s *goquery.Selection) {
+				content.Find("a").Each(func(i int, s *goquery.Selection) {
+					//p.Find("a").Each(func(j int, s *goquery.Selection) {
 						href, exists := s.Attr("href")
 						if exists && strings.HasPrefix(href, "/wiki/") {
 							title := s.Text()
@@ -91,7 +91,7 @@ func FindLink(startURL, targetTitle string, depth int, hrefs []string, mu *sync.
 								mu.Unlock()
 							}
 						}
-					})
+					//})
 				})
 			}(currentPage)
 		}
@@ -100,18 +100,15 @@ func FindLink(startURL, targetTitle string, depth int, hrefs []string, mu *sync.
 }
 
 func main() {
-	// startURL := "https://en.wikipedia.org/wiki/Samsung"
-	// targetTitle := "Xiaomi"
-	// depth := 2
-	startURL := "https://en.wikipedia.org/wiki/Mike_Tyson"
-	targetTitle := "Justin Bieber"
+	startURL := "https://en.wikipedia.org/wiki/Kim_Jong_Un"
+	targetTitle := "My Little Pony"
 	depth := 2
 	passed := 0
 	found := false
 	var hrefs []string
 	var mu sync.Mutex
 	start := time.Now()
-	FindLink(startURL, targetTitle, depth, hrefs, &mu, &passed, &found)
+	FindLinkSingle(startURL, targetTitle, depth, hrefs, &mu, &passed, &found)
 	elapsed := time.Since(start)
 	fmt.Printf("Waktu yang dibutuhkan: %s\n", elapsed)
 }
