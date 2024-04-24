@@ -39,22 +39,18 @@ export default function Wikirace() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true); // Set loading to true
+    setLoading(true);
     try {
-      // Send a POST request to the /search endpoint
       const response = await axios.post('http://localhost:8080/search', {
         start: awal,
         target: akhir
       });
-      // After the request is complete, set loading to false
       setLoading(false);
-      // Set submitted to true after the process is complete
       setSubmitted(true);
-      // Store the results from the server in the results state variable
       setResults(response.data);
     } catch (error) {
       console.error(error);
-      setLoading(false); // If an error occurs, set loading to false
+      setLoading(false);
     }
   };
   
@@ -310,10 +306,16 @@ export default function Wikirace() {
                   <div className="w-[900px] h-[450px] bg-black font-inter rounded-[10px] border-2 border-white mr-2"
                     style={{ backgroundColor: 'rgba(255, 255, 255, 0)' }}>
                     {results.paths.map((path, index) => (
-                      <p key={index} className="text-white">{index+1}. {path.join(' -> ')}</p>
+                      <p key={index} className="text-white">
+                        {index+1}. {path.map((node, nodeIndex) => (
+                          <React.Fragment key={nodeIndex}>
+                            <a className="wiki-link" href={`https://en.wikipedia.org/wiki/${encodeURIComponent(node)}`} target="_blank" rel="noopener noreferrer">{node}</a>
+                            {nodeIndex < path.length - 1 && ' -> '}
+                          </React.Fragment>
+                        ))}
+                      </p>
                     ))}
                   </div>
-                  <h2 className='mt-8 mb-4 text-2xl font-bold'> Individual Paths </h2>
                 </div>
               </div>
             )}
