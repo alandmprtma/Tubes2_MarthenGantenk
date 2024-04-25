@@ -30,6 +30,7 @@ export default function Wikirace() {
   const [resultAkhir, setResultAkhir]= useState([])
   const [activeAlgorithm, setActiveAlgorithm] = useState(''); // default kosong
   const [activeSolution, setActiveSolution] = useState(''); // default kosong
+  const [errorMessage, setErrorMessage] = useState(null)
 
   const handleAlgorithmClick = (algorithm) => {
     console.log("Algorithm", algorithm);
@@ -60,15 +61,39 @@ export default function Wikirace() {
     setOpenAwal(false)
     setOpenAkhir(false)
     event.preventDefault();
+    
+    if (awal =='' || akhir == ''){
+      setErrorMessage("Please complete the start and the target.")
+      setLoading(false)
+      return;
+    }
+    else if (activeAlgorithm == '' && activeSolution == ''){
+      setErrorMessage("Please choose the algorithm and solution.");
+      setLoading(false)
+      return;
+    }
+    else if (activeAlgorithm == ''){
+      setErrorMessage("Please choose the algorithm.");
+      setLoading(false)
+      return;
+    }
+    else if (activeSolution == ''){
+      setErrorMessage("Please choose the solution.");
+      setLoading(false)
+      return;
+    }
     setLoading(true);
     try {
       const response = await axios.post('http://localhost:8080/search', {
         start: awal,
-        target: akhir
+        target: akhir,
+        algorithm: activeAlgorithm,
+        solution: activeSolution
       });
       setLoading(false);
       setSubmitted(true);
       setResults(response.data);
+      setErrorMessage(null)
     } catch (error) {
       console.error(error);
       setLoading(false);
@@ -278,6 +303,9 @@ return (
           </button>
           </div>
         </form>
+        {errorMessage && (
+          <div className='text-white text-center mb-4'>{errorMessage}</div>
+        )}
         {loading && (
           <div className="flex justify-center items-center mb-[50px]">
             <BeatLoader color="#ffffff" loading={loading} css={override} size={15} />
