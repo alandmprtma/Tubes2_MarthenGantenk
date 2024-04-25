@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -91,9 +92,26 @@ func bfsMulti(startURL, targetTitle string, depth int, hrefs []string, mu *sync.
 	}
 }
 
-// func bfsSingleCall(start)
+func bfsSingleCall(startURL string, targetTitle string) ([][]string, int, int, int, float64) {
+	var results [][]string
+	var articlesChecked int
+	articlesTraversed := 0 // gaada disuruh di spek (?)
+	
+	var hrefs []string
+	var mu sync.Mutex
+	found := false
+	
+	startTime := time.Now()
+	bfsSingle(startURL, targetTitle, hrefs, &mu, &articlesChecked, &found, &results)
+	elapsedTime := time.Since(startTime).Seconds()
+	
+	numberPath := len(results)
 
-func bfsSingle(startURL, targetTitle string, depth int, hrefs []string, mu *sync.Mutex, passed *int, found *bool) {
+	return results, articlesChecked, articlesTraversed, numberPath, elapsedTime
+} 
+
+func bfsSingle(startURL, targetTitle string, hrefs []string, mu *sync.Mutex, passed *int, found *bool, results *[][]string) {
+	depth := 2
 	queue := []Page{{URL: startURL, Path: []string{}, Depth: depth}}
 
 	for len(queue) > 0 {
@@ -141,13 +159,14 @@ func bfsSingle(startURL, targetTitle string, depth int, hrefs []string, mu *sync
 					href, exists := s.Attr("href")
 					if exists && strings.HasPrefix(href, "/wiki/") {
 						title := s.Text()
-						// fmt.Printf("ngecek %s\n", title)
+						fmt.Printf("checking %s\n", title)
 						if title == targetTitle {
-							result := strings.Join(page.Path, " -> ")
+							result := append(page.Path, title)
+							*results = append(*results, result)
 							*found = true
-							fmt.Printf("Path: %s -> %s\n", result, title)
-							fmt.Printf("Path Length: %d\n", page.Depth)
-							fmt.Printf("Checked Article: %d\n", *passed)
+							// fmt.Printf("Path: %s -> %s\n", result, title)
+							// fmt.Printf("Path Length: %d\n", page.Depth)
+							// fmt.Printf("Checked Article: %d\n", *passed)
 							return
 						} else if href != "/wiki/Main_Page" && !isInList(href, hrefs) {
 							hrefs = append(hrefs, href)
