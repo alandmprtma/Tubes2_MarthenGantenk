@@ -60,7 +60,12 @@ export default function Wikirace() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     
-    if (activeAlgorithm == '' && activeSolution == ''){
+    if (awal =='' || akhir == ''){
+      setErrorMessage("Please complete the start and the target.")
+      setLoading(false)
+      return;
+    }
+    else if (activeAlgorithm == '' && activeSolution == ''){
       setErrorMessage("Please choose the algorithm and solution.");
       setLoading(false)
       return;

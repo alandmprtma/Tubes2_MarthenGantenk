@@ -133,6 +133,10 @@ func handleSearchRequest(w http.ResponseWriter, r *http.Request) {
 		ElapsedTime       float64    `json:"elapsedTime"`
 	}
 
+	var paths [][]string
+	var articlesChecked, articlesTraversed, numberPath int
+	var elapsedTime float64
+
 	var body map[string]string
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
@@ -141,12 +145,23 @@ func handleSearchRequest(w http.ResponseWriter, r *http.Request) {
 	}
 	start := body["start"]
 	target := body["target"]
+	algorithm := body["algorithm"]
+	solution := body["solution"]
 	// convert start and target to Node
 	startNode := Node{Title: start, URL: "https://en.wikipedia.org/wiki/" + replaceSpacesWithUnderscores(start)}
 	targetNode := Node{Title: target, URL: "https://en.wikipedia.org/wiki/" + replaceSpacesWithUnderscores(target)}
-	// paths, articlesChecked, articlesTraversed, numberPath, elapsedTime := bfsSingleCall(startNode.URL, target) // you can adjust the maxDepth as needed
-	paths, articlesChecked, articlesTraversed, numberPath, elapsedTime := iterativeDeepeningAll(startNode, targetNode, 6) // you can adjust the maxDepth as needed
-	// paths, articlesChecked, articlesTraversed, numberPath, elapsedTime := iterativeDeepeningAll(startNode, targetNode, 5) // you can adjust the maxDepth as needed
+	if algorithm == "IDS" && solution == "Multi Solution" {
+		paths, articlesChecked, articlesTraversed, numberPath, elapsedTime = iterativeDeepeningAll(startNode, targetNode, 4) // you can adjust the maxDepth as needed
+	}
+	if algorithm == "IDS" && solution == "Single Solution" {
+		paths, articlesChecked, articlesTraversed, numberPath, elapsedTime = iterativeDeepeningShortest(startNode, targetNode, 4) // you can adjust the maxDepth as needed
+	}
+	if algorithm == "BFS" && solution == "Multi Solution" {
+		// Implementation goes here
+	}
+	if algorithm == "BFS" && solution == "Single Solution" {
+		paths, articlesChecked, articlesTraversed, numberPath, elapsedTime = bfsSingleCall(startNode.URL, target) // you can adjust the maxDepth as needed
+	}
 
 	response := Response{
 		Paths:             paths,
