@@ -5,6 +5,7 @@ import { css } from "@emotion/react";
 import { BeatLoader } from "react-spinners";
 import axios from 'axios';
 import PathBox from '../../components/PathBox.js'
+import Graph from '../../components/Graph.js'
 // import Particles from 'react-particles-js';
 
 
@@ -188,7 +189,7 @@ return (
             {inputsFilled ? (
               <img src="arrow-right-arrow-left-solid.svg" alt="to" className="w-[25px] mx-3 mt-4 mb-4 h-[25px] top-0" />
             ) : (
-              <h2 className="mx-3 mt-4 mb-4 text-2xl font-semibold h-[60px]">to</h2>
+              <h2 className="mx-3 mt-4 mb-4 text-2xl font-semibold h-[60px] flex items-center justify-center">to</h2>
             )}
             <div flex flex-col>
             <input
@@ -287,6 +288,14 @@ return (
             <p className="text-white text-center mt-4 text-xl">Found <strong>{results.numberOfPaths} paths</strong> from <strong>{awal}</strong> to <strong>{akhir}</strong> in <strong>{results.elapsedTime} seconds</strong>!</p>
             </div>
             <div className='w-[85%] bg-white h-[2px] mt-2'/>
+            <h2 className='mt-5 text-2xl font-bold'> Connecting Graphs </h2>
+            <div className='w-[900px] h-[450px] font-inter rounded-[10px] border-2 border-white mr-2 overflow-hidden'>
+              <div className='flex items-start justify-start w-[150px] h-fit rounded-[10px] border-2 border-white mt-2 ml-2'>
+              <p>Drag to pan. Scroll to zoom.</p>
+              </div>
+              <Graph path={results.paths}/>
+            </div>
+            <div className='w-[85%] bg-white h-[2px] mt-4'/>
             <h2 className='mt-5 text-2xl font-bold'> Individual Paths </h2>
             <div className=" w-full flex flex-col items-center justify-center">
               <PathBox path={results.paths} />
