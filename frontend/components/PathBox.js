@@ -28,7 +28,7 @@ const PathBox = ({ path }) => {
               {node}
             </a>
             {/* Render the arrow if this is not the last item */}
-            {nodeIndex < path.length - 1 && (<span className="text-gray-500 mx-2">→</span>)}
+            {nodeIndex < path.length - 1 && (<span className="text-white mx-2">→</span>)}
           </React.Fragment>
           </div>
         ))}
