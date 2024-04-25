@@ -60,26 +60,35 @@ export default function Wikirace() {
   const handleSubmit = async (event) => {
     setOpenAwal(false)
     setOpenAkhir(false)
+    setSubmitted(false)
     event.preventDefault();
     
     if (awal =='' || akhir == ''){
-      setErrorMessage("Please complete the start and the target.")
+      setErrorMessage("Please complete the start and the target.");
       setLoading(false)
+      await delay(1500);
+      setErrorMessage(null);
       return;
     }
     else if (activeAlgorithm == '' && activeSolution == ''){
       setErrorMessage("Please choose the algorithm and solution.");
       setLoading(false)
+      await delay(1500);
+      setErrorMessage(null);
       return;
     }
     else if (activeAlgorithm == ''){
       setErrorMessage("Please choose the algorithm.");
       setLoading(false)
+      await delay(1500);
+      setErrorMessage(null);
       return;
     }
     else if (activeSolution == ''){
       setErrorMessage("Please choose the solution.");
-      setLoading(false)
+      setLoading(false);
+      await delay(1500);
+      setErrorMessage(null);
       return;
     }
     setLoading(true);
@@ -175,7 +184,7 @@ export default function Wikirace() {
 return (
     <div className="flex flex-col w-full items-center">
       <Navbar/>
-      <img src="/Lemanspedia_Slogan-removebg.png" className='h-[225px] object-cover'/>
+      <img src="/Lemanspedia_Slogan-removebg.png" className='h-[200px] object-cover'/>
       <h2 className="mt-[25px] mb-4 text-2xl font-semibold">Find the shortest paths from</h2>
       <div className="text-white justify-center">
         <form onSubmit={handleSubmit}>
@@ -295,19 +304,20 @@ return (
               Multi Solution
             </button>
           </div>
-          <button type="submit"
-            className='mt-4 mx-4 mb-[50px] rounded border-2 border-neutral-50 px-7 pb-[8px] pt-[10px] text-sm font-bold uppercase leading-normal text-neutral-50 transition duration-150 ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10'
+          {!loading && (<button type="submit"
+            className='mt-4 mx-4 mb-[15px] rounded border-2 border-neutral-50 px-7 pb-[8px] pt-[10px] text-sm font-bold uppercase leading-normal text-neutral-50 transition duration-150 ease-in-out hover:border-neutral-100 hover:bg-neutral-500 hover:bg-opacity-10 hover:text-neutral-100 focus:border-neutral-100 focus:text-neutral-100 focus:outline-none focus:ring-0 active:border-neutral-200 active:text-neutral-200 dark:hover:bg-neutral-100 dark:hover:bg-opacity-10'
             data-twe-ripple-init
             data-twe-ripple-color="light">
               Submit!
           </button>
+          )}
           </div>
         </form>
         {errorMessage && (
           <div className='text-white text-center mb-4'>{errorMessage}</div>
         )}
         {loading && (
-          <div className="flex justify-center items-center mb-[50px]">
+          <div className="flex justify-center items-center mt-[25px] mb-[50px]">
             <BeatLoader color="#ffffff" loading={loading} css={override} size={15} />
             <p className="ml-2 text-white">Loading...</p>
           </div>
@@ -317,17 +327,17 @@ return (
             <div className='w-[50%]'>
             <p className="text-white text-center mt-4 text-xl">Found <strong>{results.numberOfPaths} paths</strong> from <strong>{awal}</strong> to <strong>{akhir}</strong> in <strong>{results.elapsedTime} seconds</strong>!</p>
             </div>
-            <div className='w-[85%] bg-white h-[2px] mt-2'/>
+            <div className='w-[100%] bg-white h-[2px] mt-2'/>
             <h2 className='mt-5 text-2xl font-bold'> Connecting Graphs </h2>
             <div className='w-[900px] h-[450px] font-inter rounded-[10px] border-2 border-white mr-2 overflow-hidden'>
             <div className='translate-x-[-200x] translate-y-[100px] z-[-10px]'>
             <Graph path={results.paths}/>
             </div>
-            <div className='flex translate-y-[-760px] w-[150px] z-[10px] h-fit rounded-[10px] border-2 border-white mt-2 ml-2'>
+            <div className='flex translate-y-[-735px] w-[150px] z-[10px] h-fit rounded-[10px] border-2 border-white mt-2 ml-2'>
               <p>Drag to pan. Scroll to zoom.</p>
             </div>
             </div>
-            <div className='w-[85%] bg-white h-[2px] mt-4'/>
+            <div className='w-[100%] bg-white h-[2px] mt-4'/>
             <h2 className='mt-5 text-2xl font-bold'> Individual Paths </h2>
             <div className=" w-full flex flex-col items-center justify-center">
               <PathBox path={results.paths} />
