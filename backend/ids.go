@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -40,19 +41,19 @@ var (
 )
 
 // function to fetch links from a given url
-func fetchLinks(url string, ch chan<- []Node, errCh chan<- error) {
+func fetchLinks(urlString string, ch chan<- []Node, errCh chan<- error) {
 	// reserve a spot in the semaphore to limit concurrent HTTP requests
 	sem <- struct{}{}
 	defer func() { <-sem }() // release the semaphore when it's done
 
 	// cek if the result url has already in cache
-	if nodes, ok := urlCache[url]; ok {
+	if nodes, ok := urlCache[urlString]; ok {
 		ch <- nodes
 		return
 	}
 
 	// create a new http get request
-	req, _ := http.NewRequest("GET", url, nil)
+	req, _ := http.NewRequest("GET", urlString, nil)
 	req.Header.Set("Connection", "keep-alive")
 
 	// perform the http request
@@ -81,14 +82,21 @@ func fetchLinks(url string, ch chan<- []Node, errCh chan<- error) {
 	doc.Find("#bodyContent a").Each(func(_ int, s *goquery.Selection) {
 		href, exists := s.Attr("href")
 		if exists && strings.HasPrefix(href, "/wiki/") && !strings.Contains(href, ":") {
-			title := s.Text() // get the text of the link
+			// Extract the title from the URL
+			title := strings.TrimPrefix(href, "/wiki/")
+			title, err = url.QueryUnescape(title) // Decode URL-encoded characters
+			if err != nil {
+				errCh <- err
+				return
+			}
+			title = strings.ReplaceAll(title, "_", " ") // Replace underscores with spaces
 			fullURL := "https://en.wikipedia.org" + href
 			nodes = append(nodes, Node{Title: title, URL: fullURL, Path: []string{title}}) // create a new node with the link's details
 		}
 	})
 
 	// store the result to cache
-	urlCache[url] = nodes
+	urlCache[urlString] = nodes
 	ch <- nodes
 }
 
