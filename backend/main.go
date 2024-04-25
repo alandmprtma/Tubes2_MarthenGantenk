@@ -12,11 +12,11 @@ import (
 )
 
 type SearchResult struct {
-    Title     string `json:"title"`
-	PageID    int64  `json:"pageid"` 
-    Thumbnail struct {
-        Source string `json:"source"`
-    } `json:"thumbnail"`
+	Title     string `json:"title"`
+	PageID    int64  `json:"pageid"`
+	Thumbnail struct {
+		Source string `json:"source"`
+	} `json:"thumbnail"`
 }
 
 type SearchResponse struct {
@@ -47,34 +47,34 @@ func main() {
 // Fungsi untuk fetching gambar
 // Function to fetch detailed information for a given page ID
 func fetchPageDetails(pageID int64) (string, error) {
-    detailsURL := fmt.Sprintf("https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&pageids=%d&pithumbsize=500", pageID)
-    resp, err := http.Get(detailsURL)
-    if err != nil {
-        return "", err
-    }
-    defer resp.Body.Close()
+	detailsURL := fmt.Sprintf("https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&pageids=%d&pithumbsize=500", pageID)
+	resp, err := http.Get(detailsURL)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
 
-    var result struct {
-        Query struct {
-            Pages map[string]struct {
-                Thumbnail struct {
-                    Source string `json:"source"`
-                } `json:"thumbnail"`
-            } `json:"pages"`
-        } `json:"query"`
-    }
+	var result struct {
+		Query struct {
+			Pages map[string]struct {
+				Thumbnail struct {
+					Source string `json:"source"`
+				} `json:"thumbnail"`
+			} `json:"pages"`
+		} `json:"query"`
+	}
 
-    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-        return "", err
-    }
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", err
+	}
 
-    for _, page := range result.Query.Pages {
-        if page.Thumbnail.Source != "" {
-            return page.Thumbnail.Source, nil
-        }
-    }
+	for _, page := range result.Query.Pages {
+		if page.Thumbnail.Source != "" {
+			return page.Thumbnail.Source, nil
+		}
+	}
 
-    return "", fmt.Errorf("no image found for page ID: %d", pageID)
+	return "", fmt.Errorf("no image found for page ID: %d", pageID)
 }
 
 /* Fungsi Menampilkan Hasil Pencarian Dari Wikipedia API */
@@ -118,7 +118,6 @@ func handleWikipediaRequest(w http.ResponseWriter, r *http.Request) {
 		}
 		searchResults = append(searchResults, searchResult)
 	}
-	
 
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 	w.Header().Set("Content-Type", "application/json")
@@ -145,8 +144,9 @@ func handleSearchRequest(w http.ResponseWriter, r *http.Request) {
 	// convert start and target to Node
 	startNode := Node{Title: start, URL: "https://en.wikipedia.org/wiki/" + replaceSpacesWithUnderscores(start)}
 	targetNode := Node{Title: target, URL: "https://en.wikipedia.org/wiki/" + replaceSpacesWithUnderscores(target)}
-	// paths, articlesChecked, articlesTraversed, numberPath, elapsedTime := bfsSingleCall(startNode, targetNode, 5) // you can adjust the maxDepth as needed
-	paths, articlesChecked, articlesTraversed, numberPath, elapsedTime := iterativeDeepeningAll(startNode, targetNode, 5) // you can adjust the maxDepth as needed
+	// paths, articlesChecked, articlesTraversed, numberPath, elapsedTime := bfsSingleCall(startNode.URL, target) // you can adjust the maxDepth as needed
+	paths, articlesChecked, articlesTraversed, numberPath, elapsedTime := iterativeDeepeningAll(startNode, targetNode, 6) // you can adjust the maxDepth as needed
+	// paths, articlesChecked, articlesTraversed, numberPath, elapsedTime := iterativeDeepeningAll(startNode, targetNode, 5) // you can adjust the maxDepth as needed
 
 	response := Response{
 		Paths:             paths,

@@ -100,8 +100,8 @@ func FindLinkSingle(startURL, targetTitle string, depth int, hrefs []string, mu 
 }
 
 func main() {
-	startURL := "https://en.wikipedia.org/wiki/Kim_Jong_Un"
-	targetTitle := "My Little Pony"
+	startURL := "https://en.wikipedia.org/wiki/Sergey_Bubka"
+	targetTitle := "Twin"
 	depth := 2
 	passed := 0
 	found := false
