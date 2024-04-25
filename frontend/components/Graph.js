@@ -1,5 +1,5 @@
 "use client"
-import React, {useCallback, useMemo, useState } from "react";
+import React, { useMemo  } from "react";
 import { ForceGraph2D } from "react-force-graph";
 
 const linkColor = (link) => {
@@ -14,10 +14,6 @@ const linkColor = (link) => {
  
 
 const Graph = ({ path }) => {
-  const [zoom, setZoom] = useState(1); // State to keep track of zoom level
-  const handleZoom = useCallback((newZoom) => {
-    setZoom(newZoom);
-  }, []);
 
   // Ensure the 'path' prop is an array
   if (!Array.isArray(path)) {
@@ -49,7 +45,6 @@ const Graph = ({ path }) => {
 
   return <ForceGraph2D 
   graphData={graphData} 
-  onZoom={handleZoom}
   linkColor={link => linkColor(link)}
   nodeCanvasObject={(node, ctx, globalScale) => {
     const label = node.id;
@@ -73,7 +68,6 @@ const Graph = ({ path }) => {
     const bckgDimensions = node.__bckgDimensions;
     bckgDimensions && ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
   }}
-  maxZoom={2}  
   minZoom={0.1}
 />;
 };

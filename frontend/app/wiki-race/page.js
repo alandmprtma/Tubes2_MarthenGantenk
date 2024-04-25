@@ -58,6 +58,8 @@ export default function Wikirace() {
   };
 
   const handleSubmit = async (event) => {
+    setOpenAwal(false)
+    setOpenAkhir(false)
     event.preventDefault();
     
     if (awal =='' || akhir == ''){
@@ -318,10 +320,12 @@ return (
             <div className='w-[85%] bg-white h-[2px] mt-2'/>
             <h2 className='mt-5 text-2xl font-bold'> Connecting Graphs </h2>
             <div className='w-[900px] h-[450px] font-inter rounded-[10px] border-2 border-white mr-2 overflow-hidden'>
-              <div className='flex items-start justify-start w-[150px] h-fit rounded-[10px] border-2 border-white mt-2 ml-2'>
+            <div className='translate-x-[-200x] translate-y-[100px] z-[-10px]'>
+            <Graph path={results.paths}/>
+            </div>
+            <div className='flex translate-y-[-760px] w-[150px] z-[10px] h-fit rounded-[10px] border-2 border-white mt-2 ml-2'>
               <p>Drag to pan. Scroll to zoom.</p>
-              </div>
-              <Graph path={results.paths}/>
+            </div>
             </div>
             <div className='w-[85%] bg-white h-[2px] mt-4'/>
             <h2 className='mt-5 text-2xl font-bold'> Individual Paths </h2>
