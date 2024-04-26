@@ -157,7 +157,7 @@ func handleSearchRequest(w http.ResponseWriter, r *http.Request) {
 		paths, articlesChecked, articlesTraversed, numberPath, elapsedTime = iterativeDeepeningShortest(startNode, targetNode, 4) // you can adjust the maxDepth as needed
 	}
 	if algorithm == "BFS" && solution == "Multi Solution" {
-		// Implementation goes here
+		paths, articlesChecked, articlesTraversed, numberPath, elapsedTime = bfsMultiCall(startNode.URL, target) // you can adjust the maxDepth as needed
 	}
 	if algorithm == "BFS" && solution == "Single Solution" {
 		paths, articlesChecked, articlesTraversed, numberPath, elapsedTime = bfsSingleCall(startNode.URL, target) // you can adjust the maxDepth as needed
