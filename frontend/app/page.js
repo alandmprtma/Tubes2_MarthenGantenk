@@ -5,7 +5,6 @@ export default function Home() {
   return (
         <div className="flex flex-col w-full items-center justify-center">
         <Navbar/>
-        <img src="/Lemanspedia_Slogan-removebg.png" className='h-[300px] object-cover'/>
         {/*Start point What is WikiRace Card*/}
         <div className='rounded-[10px] my-2 w-[70%] h-fit relative border-2 border-white mx-4 mt-[50px]'>
             <div className='p-4 flex flex-col text-white'>

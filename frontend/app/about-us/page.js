@@ -33,7 +33,7 @@ export default function Aboutus() {
       <div className="flex flex-col w-full items-center justify-center">
       <Navbar/>
       <h1 className='font-bold text-3xl text-white mt-3'>LEMANSPEDIA CONTRIBUTORS</h1>
-      <h3 className=' text-xl text-white'>The main objective from the second major assignment of Algorithm Strategies courses is to make a WikiRace programs with Breadth First Search (BFS) and Iterative Deepening Search (IDS) Algorithms.</h3>
+      <h3 className=' text-xl text-white text-center mx-[50px]'>The main objective from the second major assignment of Algorithm Strategies courses is to make a WikiRace programs with Breadth First Search (BFS) and Iterative Deepening Search (IDS) Algorithms.</h3>
       <article className='flex w-[80%] gap-x-4 justify-center mt-10'>
         {members.map((items) => {
           return (
