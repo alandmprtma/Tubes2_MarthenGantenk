@@ -208,15 +208,23 @@ func iterativeDeepeningAll(start, target Node, maxDepth int) ([][]string, int, i
 
 	elapsedTime := time.Since(startTime).Seconds()
 	numberPath := len(results)
-	fmt.Printf("Result: %v\n", results)
-	fmt.Println("\nShortest Path(s) found:")
-	for i, result := range results {
-		fmt.Printf("%d.  %s\n", i+1, strings.Join(result, " -> "))
+
+	if numberPath != 0 {
+		fmt.Printf("Result: %v\n", results)
+		fmt.Println("\nShortest Path(s) found:")
+		for i, result := range results {
+			fmt.Printf("%d.  %s\n", i+1, strings.Join(result, " -> "))
+		}
+		fmt.Printf("Number of shortest path(s) found: %d\n", numberPath)
+		fmt.Printf("Articles Checked: %d\n", articlesChecked)
+		fmt.Printf("Articles Traversed: %d\n", articlesTraversed)
+		fmt.Printf("Elapsed Time: %f seconds\n", elapsedTime)
+	} else {
+		fmt.Println("No path found.")
+		fmt.Printf("Articles Checked: %d\n", articlesChecked)
+		fmt.Printf("Articles Traversed: %d\n", articlesTraversed)
+		fmt.Printf("Elapsed Time: %f seconds\n", elapsedTime)
 	}
-	fmt.Printf("Number of shortest path(s) found: %d\n", numberPath)
-	fmt.Printf("Articles Checked: %d\n", articlesChecked)
-	fmt.Printf("Articles Traversed: %d\n", articlesTraversed)
-	fmt.Printf("Elapsed Time: %f seconds\n", elapsedTime)
 
 	return results, articlesChecked, articlesTraversed, numberPath, elapsedTime // return the final results and counters
 }
@@ -306,18 +314,24 @@ func iterativeDeepeningShortest(start, target Node, maxDepth int) ([][]string, i
 
 	elapsedTime := time.Since(startTime).Seconds()
 
-	fmt.Printf("Result: %v\n", result)
-	fmt.Println("\nShortest Path found:")
-	if found {
-		for _, path := range result {
-			fmt.Printf("%s\n", strings.Join(path, " -> "))
+	if len(result) != 0 {
+		fmt.Println("\nShortest Path found:")
+		if found {
+			for _, path := range result {
+				fmt.Printf("%s\n", strings.Join(path, " -> "))
+			}
 		}
-	}
 
-	fmt.Println("Number of shortest path(s) found:", len(result))
-	fmt.Printf("Articles Checked: %d\n", articlesChecked)
-	fmt.Printf("Articles Traversed: %d\n", articlesTraversed)
-	fmt.Printf("Elapsed Time: %f seconds\n", elapsedTime)
+		fmt.Println("Number of shortest path(s) found:", len(result))
+		fmt.Printf("Articles Checked: %d\n", articlesChecked)
+		fmt.Printf("Articles Traversed: %d\n", articlesTraversed)
+		fmt.Printf("Elapsed Time: %f seconds\n", elapsedTime)
+	} else {
+		fmt.Println("No path found.")
+		fmt.Printf("Articles Checked: %d\n", articlesChecked)
+		fmt.Printf("Articles Traversed: %d\n", articlesTraversed)
+		fmt.Printf("Elapsed Time: %f seconds\n", elapsedTime)
+	}
 
 	return result, articlesChecked, articlesTraversed, len(result), elapsedTime // return the final result and counters
 }
