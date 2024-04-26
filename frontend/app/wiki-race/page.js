@@ -124,7 +124,6 @@ export default function Wikirace() {
           );
 
           console.log("Response data:", response.data); // Check response structure
-
           // Assuming response.data is directly an array of results as per your backend code
           if (Array.isArray(response.data)) {
               const results = response.data.map(item => ({
@@ -323,27 +322,33 @@ return (
           </div>
         )}
         {submitted && results && (
-          <div className='flex flex-col items-center'>
-            <div className='w-[50%]'>
-            <p className="text-white text-center mt-4 text-xl">Found <strong>{results.numberOfPaths} paths</strong> from <strong>{awal}</strong> to <strong>{akhir}</strong> in <strong>{results.elapsedTime} seconds</strong>!</p>
-            </div>
-            <div className='w-[100%] bg-white h-[2px] mt-2'/>
-            <h2 className='mt-5 text-2xl font-bold'> Connecting Graphs </h2>
-            <div className='w-[900px] h-[450px] font-inter rounded-[10px] border-2 border-white mr-2 overflow-hidden'>
-            <div className='translate-x-[-200x] translate-y-[100px] z-[-10px]'>
-            <Graph path={results.paths}/>
-            </div>
-            <div className='flex translate-y-[-735px] w-[150px] z-[10px] h-fit rounded-[10px] border-2 border-white mt-2 ml-2'>
-              <p>Drag to pan. Scroll to zoom.</p>
-            </div>
-            </div>
-            <div className='w-[100%] bg-white h-[2px] mt-4'/>
-            <h2 className='mt-5 text-2xl font-bold'> Individual Paths </h2>
-            <div className=" w-full flex flex-col items-center justify-center">
-              <PathBox path={results.paths} />
-              </div>
-            </div>
+    <div className='flex flex-col items-center'>
+        {results.numberOfPaths === 0 ? (
+            <p className="text-white text-center mt-4 text-xl">No path found from <strong>{awal}</strong> to <strong>{akhir}</strong></p>
+        ) : (
+            <>
+                <div className='w-[50%]'>
+                    <p className="text-white text-center mt-4 text-xl">Found <strong>{results.numberOfPaths} paths</strong> from <strong>{awal}</strong> to <strong>{akhir}</strong> in <strong>{results.elapsedTime} seconds</strong>!</p>
+                </div>
+                <div className='w-[100%] bg-white h-[2px] mt-2'/>
+                <h2 className='mt-5 text-2xl font-bold'> Connecting Graphs </h2>
+                <div className='w-[900px] h-[450px] font-inter rounded-[10px] border-2 border-white mr-2 overflow-hidden'>
+                    <div className='translate-x-[-200x] translate-y-[100px] z-[-10px]'>
+                        <Graph path={results.paths}/>
+                    </div>
+                    <div className='flex translate-y-[-735px] w-[150px] z-[10px] h-fit rounded-[10px] border-2 border-white mt-2 ml-2'>
+                        <p>Drag to pan. Scroll to zoom.</p>
+                    </div>
+                </div>
+                <div className='w-[100%] bg-white h-[2px] mt-4'/>
+                <h2 className='mt-5 text-2xl font-bold'> Individual Paths </h2>
+                <div className=" w-full flex flex-col items-center justify-center">
+                    <PathBox path={results.paths} />
+                </div>
+            </>
         )}
+    </div>
+)}
       </div>
     </div>
   );
