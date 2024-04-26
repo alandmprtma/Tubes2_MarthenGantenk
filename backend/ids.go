@@ -179,11 +179,10 @@ func iterativeDeepeningAll(start, target Node, maxDepth int) ([][]string, int, i
 			visited[current.URL] = true
 			urlQueue <- current.URL // mark the url as visited
 
-			// increment the articles checked counter
-			articlesChecked++
-
 			select {
 			case neighbors := <-resultQueue: // if the results are available
+				// increment the articles checked counter
+				articlesChecked++
 				for _, neighbor := range neighbors {
 					if !visited[neighbor.URL] { // if the neighbor ins't visited
 						neighbor.Path = append([]string(nil), current.Path...) // copy the current path
@@ -339,33 +338,3 @@ func iterativeDeepeningShortest(start, target Node, maxDepth int) ([][]string, i
 func replaceSpacesWithUnderscores(title string) string {
 	return strings.ReplaceAll(title, " ", "_")
 }
-
-func replaceUnderscoresWithSpaces(title string) string {
-	return strings.ReplaceAll(title, "_", " ")
-}
-
-// func handleSearchIDS(w http.ResponseWriter, r *http.Request) {
-// 	var requestData map[string]string
-// 	err := json.NewDecoder(r.Body).Decode(&requestData)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	start := requestData["start"]
-// 	target := requestData["target"]
-
-// 	fmt.Printf("Start: %s, Target: %s\n", start, target) // Debug print
-
-// 	startNode := Node{Title: replaceUnderscoresWithSpaces(start), URL: fmt.Sprintf("https://en.wikipedia.org/wiki/%s", start), Path: []string{replaceUnderscoresWithSpaces(start)}}
-// 	targetNode := Node{Title: replaceUnderscoresWithSpaces(target), URL: fmt.Sprintf("https://en.wikipedia.org/wiki/%s", target), Path: []string{replaceUnderscoresWithSpaces(target)}}
-
-// 	results, articleChecked, articlesTraversed, numberPath, elapsedTime := iterativeDeepeningShortest(startNode, targetNode, 6)
-
-// 	// convert results to json
-// 	err = json.NewEncoder(w).Encode(Result{results, articleChecked, articlesTraversed, numberPath, elapsedTime})
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// }
