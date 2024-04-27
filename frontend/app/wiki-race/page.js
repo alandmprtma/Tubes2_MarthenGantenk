@@ -338,7 +338,7 @@ return (
                           <div className='translate-x-[-200x] translate-y-[100px] z-[-10px]'>
                               <Graph path={results.paths}/>
                           </div>
-                          <div className='flex translate-y-[-735px] w-[150px] z-[10px] h-fit rounded-[10px] border-2 border-white mt-2 ml-2'>
+                          <div className='flex translate-y-[-760px] w-[150px] z-[10px] h-fit rounded-[10px] border-2 border-white mt-2 ml-2'>
                               <p>Drag to pan. Scroll to zoom.</p>
                           </div>
                       </div>
