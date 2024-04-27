@@ -332,7 +332,7 @@ return (
                           <p className="text-white text-center mt-4 text-xl">Articles Checked: <strong>{results.articlesChecked}</strong></p>
                           <p className="text-white text-center mt-4 text-xl">Articles Traversed: <strong>{results.articlesTraversed}</strong></p>
                       </div>
-                      <div className='w-[100%] bg-white h-[2px] mt-2'/>
+                      <div className='w-[1140px] bg-white h-[2px] mt-2'/>
                       <h2 className='mt-5 text-2xl font-bold'> Connecting Graphs </h2>
                       <div className='w-[900px] h-[450px] font-inter rounded-[10px] border-2 border-white mr-2 overflow-hidden'>
                           <div className='translate-x-[-200x] translate-y-[100px] z-[-10px]'>
@@ -342,7 +342,7 @@ return (
                               <p>Drag to pan. Scroll to zoom.</p>
                           </div>
                       </div>
-                      <div className='w-[100%] bg-white h-[2px] mt-4'/>
+                      <div className='w-[1140px] bg-white h-[2px] mt-4'/>
                       <h2 className='mt-5 text-2xl font-bold'> Individual Paths </h2>
                       <div className=" w-full flex flex-col items-center justify-center">
                           <PathBox path={results.paths} />
