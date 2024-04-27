@@ -9,6 +9,13 @@
 🎓 **Project Background:**
 I created the Wiki Race Website Program named "LemansPedia" as part of my Algorithm Strategies second major assignment during my fourth semester in the Computer Science program at ITB.
 
+## 🪪 Contributors
+| Nama | NIM |
+|---|---|
+| Aland Mulia Pratama | 13522124 |
+| Rizqika Mulia Pratama | 13522126 |
+| Ikhwan Al Hakim | 13522147 |
+
 ## 📝 Description
 WikiRace, or the Wiki Game, is a game inspired by the structure of Wikipedia, an online encyclopedia collaboratively managed by thousands of volunteers worldwide. The game challenges players to navigate through the network of Wikipedia articles with the goal of reaching a predetermined article as quickly as possible or using the fewest number of clicks.
 
