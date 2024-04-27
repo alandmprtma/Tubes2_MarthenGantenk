@@ -171,13 +171,11 @@ func bfsSingleCall(startURL string, targetTitle string) ([][]string, int, int, i
 	bfsSingle(startURL, targetTitle, depth, hrefs, &mu, &articlesChecked, &articlesTraversed, &found, &results)
 	elapsedTime := time.Since(startTime).Seconds()
 	
-	for i, element := range results {
-		results[i] = removeDuplicates(element)
-	}	
-	results = removeDuplicateLists(results)
-	numberPath := len(results)
+	results[0] = removeDuplicates(results[0])
 
-	return results, articlesChecked, articlesTraversed, numberPath, elapsedTime
+	numberPath := 1
+
+	return results[0:1], articlesChecked, articlesTraversed, numberPath, elapsedTime
 } 
 
 func bfsSingle(startURL, targetTitle string, depth int, hrefs []string, mu *sync.Mutex, checked *int, traversed *int, found *bool, results *[][]string) {
